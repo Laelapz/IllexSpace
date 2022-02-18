@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
+    public int PlayerDamage;
     public float speed = 1f;
     public int life = 1;
 
@@ -23,7 +24,16 @@ public class EnemyScript : MonoBehaviour
     }
 
     void OnCollisionEnter2D( Collision2D collision ) {
-        if( collision.collider.tag == "Player") {
+        if( collision.collider.tag == "Player" || collision.collider.tag == "MyBullet" ) {
+            Debug.Log(PlayerDamage);
+            DamageEnemy(1);
+        }
+    }
+
+    void DamageEnemy ( int damage ) {
+        life -= damage;
+
+        if ( life <= 0 ) {
             DestroyEnemy(new Vector3(0, -1000, 0));
         }
     }

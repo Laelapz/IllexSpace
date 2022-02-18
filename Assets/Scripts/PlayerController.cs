@@ -6,8 +6,10 @@ public class PlayerController : MonoBehaviour
 {
 
     public Rigidbody2D Player;
+    public Animator animator;
     public GameObject Shoot;
     public float speed;
+    public int damage = 1;
 
     private float PlayerBoundary = 0.5f;
     void Update()
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
         transform.rotation = new Quaternion(0, 0, 0, 0);
         pos.y += Input.GetAxis("Vertical") * speed * Time.deltaTime;
         pos.x += Input.GetAxis("Horizontal") * speed * Time.deltaTime;
+        UpdateAnimation();
         pos = ScreenBoundary(pos);
         transform.position = pos;
 
@@ -23,6 +26,23 @@ public class PlayerController : MonoBehaviour
         
     }
 
+    void UpdateAnimation () {
+        if ( Input.GetAxis("Horizontal") > 0 ){
+            Debug.Log("Direita");
+            animator.SetBool("Right", true);
+            animator.SetBool("Middle", false);
+        }
+        else if( Input.GetAxis("Horizontal") < 0 ){
+            Debug.Log("Esquerda");
+            animator.SetBool("Middle", false);
+            animator.SetBool("Left", true);
+        }
+        else{
+            animator.SetBool("Right", false);
+            animator.SetBool("Left", false);
+            animator.SetBool("Middle", true);
+        }
+    }
     void OnCollisionEnter2D (Collision2D collision) {
         if ( collision.collider.tag != "MyBullet" ) {
             Dead();
