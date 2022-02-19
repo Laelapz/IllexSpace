@@ -26,6 +26,7 @@ public class EnemyShoot2 : MonoBehaviour
 
             for (int rot_z = -30; rot_z <= 30; rot_z+=15){
                 Quaternion rot = new Quaternion(0, 0, 90, 0);
+                pos.z = -1;
                 var shoot = Instantiate(ShootEnemy, pos, rot);
                 shoot.transform.Rotate(new Vector3(0, 0, rot_z));
                 Physics2D.IgnoreCollision(GetComponent<Collider2D>(), shoot.GetComponent<Collider2D>());

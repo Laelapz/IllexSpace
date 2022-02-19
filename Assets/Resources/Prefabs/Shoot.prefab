@@ -4852,6 +4852,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
+  type: player
   dir: 1
 --- !u!50 &9176184658263710245
 Rigidbody2D:
