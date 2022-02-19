@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -28,12 +26,10 @@ public class PlayerController : MonoBehaviour
 
     void UpdateAnimation () {
         if ( Input.GetAxis("Horizontal") > 0 ){
-            Debug.Log("Direita");
             animator.SetBool("Right", true);
             animator.SetBool("Middle", false);
         }
         else if( Input.GetAxis("Horizontal") < 0 ){
-            Debug.Log("Esquerda");
             animator.SetBool("Middle", false);
             animator.SetBool("Left", true);
         }

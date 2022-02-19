@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
@@ -24,9 +22,8 @@ public class EnemyScript : MonoBehaviour
     }
 
     void OnCollisionEnter2D( Collision2D collision ) {
-        if( collision.collider.tag == "Player" || collision.collider.tag == "MyBullet" ) {
-            Debug.Log(PlayerDamage);
-            DamageEnemy(1);
+        if( collision.collider.tag == "Player" || collision.collider.tag == "MyBullet" || collision.collider.tag == "EnemyBullet" ) {
+            DamageEnemy(PlayerDamage);
         }
     }
 
