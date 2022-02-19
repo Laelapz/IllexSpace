@@ -26,7 +26,7 @@ public class EnemyShoot1 : MonoBehaviour
 
     void ShootOnPlayer (Vector3 pos) {
         if ( ShootTime > 1 ){
-            Quaternion rot = new Quaternion(0, 0, 90, 0);
+            Quaternion rot = new Quaternion(0, 0, 5, 0);
             var shoot = Instantiate(ShootEnemy, pos, rot);
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), shoot.GetComponent<Collider2D>());
             shoot.tag = "EnemyBullet";

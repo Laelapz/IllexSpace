@@ -240,8 +240,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 049fcc58bf5acbb408165fb23099c71d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enemy1: {fileID: 0}
-  Enemy2: {fileID: 0}
+  Enemy1: {fileID: 842868269004555885, guid: 9641549eeba805644af0da2a0140f7db, type: 3}
+  Enemy2: {fileID: 842868269004555885, guid: 0fda8f33bb9ad1e47a4b242b0d4c75de, type: 3}
   Player: {fileID: 202491677}
 --- !u!4 &759634962
 Transform:

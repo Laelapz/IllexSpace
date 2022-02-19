@@ -16,7 +16,8 @@ public class PlayerShootScript : MonoBehaviour
     void Update()
     {
         Vector3 pos = transform.position;
-        pos.y += 1 * speed * Time.deltaTime * dir;
+        Vector3 velocity = new Vector3 ( 0, speed * Time.deltaTime );
+        pos += transform.rotation * velocity;
         transform.position = pos;
 
         DestroyShoot(pos);
