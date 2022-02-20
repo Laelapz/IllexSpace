@@ -431,6 +431,11 @@ MonoBehaviour:
   Enemy1: {fileID: 842868269004555885, guid: 9641549eeba805644af0da2a0140f7db, type: 3}
   Enemy2: {fileID: 842868269004555885, guid: 0fda8f33bb9ad1e47a4b242b0d4c75de, type: 3}
   Player: {fileID: 202491677}
+  Item1: {fileID: -8055712855172713862, guid: 160b8f4c8935b3d4ab7f4c304a9d5145, type: 3}
+  Item2: {fileID: 595727307171276423, guid: 160b8f4c8935b3d4ab7f4c304a9d5145, type: 3}
+  Item3: {fileID: -1543314564218839039, guid: 160b8f4c8935b3d4ab7f4c304a9d5145, type: 3}
+  EmptyItem: {fileID: 21300000, guid: 4bed6dd2a9b594d40867ef60a75a9f69, type: 3}
+  UIHolder: {fileID: 0}
 --- !u!4 &759634962
 Transform:
   m_ObjectHideFlags: 0

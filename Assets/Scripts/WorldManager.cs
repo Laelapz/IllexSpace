@@ -6,6 +6,11 @@ public class WorldManager : MonoBehaviour
     public GameObject Enemy2;
     public GameObject Player;
 
+    public Sprite Item1;
+    public Sprite Item2;
+    public Sprite Item3;
+    public Sprite EmptyItem;
+
     public GameObject UIHolder;
     private int score = 0;
 
@@ -53,10 +58,26 @@ public class WorldManager : MonoBehaviour
         Text.text = score.ToString();
     }
 
-    public void ActivatePower () {
+    public void ActivatePower (int type) {
         UnityEngine.UI.Image PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
         UnityEngine.UI.Image Power = PowerHolder.GetComponentInChildren<UnityEngine.UI.Image>();
-        Power.sprite = null;
+
+        if ( type == 1 ){
+            Power.sprite = Item1;
+
+        }
+        else if ( type == 2 ) {
+            Power.sprite = Item2;
+
+        }
+        else if ( type == 3 ) {
+            Power.sprite = Item3;
+
+        }
+        else{
+            Power.sprite = EmptyItem;
+        }
+
     
     }
 }

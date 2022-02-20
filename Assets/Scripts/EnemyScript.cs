@@ -36,6 +36,8 @@ public class EnemyScript : MonoBehaviour
         if ( pos.y < -Camera.main.orthographicSize - 1 ) {
             Destroy(gameObject);
             worldManager.IncreasePoints(xpBase);
+            int num = Random.Range(0, 4);
+            worldManager.ActivatePower(num);
         }
     }
 }

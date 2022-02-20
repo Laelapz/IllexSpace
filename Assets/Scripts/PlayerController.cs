@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D Player;
     public Animator animator;
     public GameObject Shoot;
+    public GameObject Boost;
     public float speed;
     public int damage = 1;
 
@@ -26,14 +27,17 @@ public class PlayerController : MonoBehaviour
 
     void UpdateAnimation () {
         if ( Input.GetAxis("Horizontal") > 0 ){
+            Boost.transform.localScale = new Vector3(2, 3, 1);
             animator.SetBool("Right", true);
             animator.SetBool("Middle", false);
         }
         else if( Input.GetAxis("Horizontal") < 0 ){
-            animator.SetBool("Middle", false);
+            Boost.transform.localScale = new Vector3(2, 3, 1);
             animator.SetBool("Left", true);
+            animator.SetBool("Middle", false);
         }
         else{
+            Boost.transform.localScale = new Vector3(3, 3, 1);
             animator.SetBool("Right", false);
             animator.SetBool("Left", false);
             animator.SetBool("Middle", true);
