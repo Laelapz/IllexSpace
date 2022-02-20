@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5816314759510287496}
   - component: {fileID: 6277412217138025945}
   - component: {fileID: 1329895947513714483}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4816,7 +4816,7 @@ GameObject:
   - component: {fileID: 8808161145953479620}
   - component: {fileID: 9176184658263710245}
   - component: {fileID: 321997330433563332}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ShootEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4885,7 +4885,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -4901,7 +4901,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2144584311947253790}
   - component: {fileID: 1001555042256074738}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: circle_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}

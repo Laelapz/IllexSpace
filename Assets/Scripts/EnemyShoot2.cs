@@ -3,21 +3,11 @@ using UnityEngine;
 public class EnemyShoot2 : MonoBehaviour
 {
     public GameObject ShootEnemy;
-    public GameObject Mira;
-    public float ReloadShoot = 1f;
-
+    public float ReloadShoot = 3f;
     private float ShootTime = 0f;
 
-    void FixedUpdate()
-    {
-        Vector3 pos = transform.position;
-        RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector3(pos.x, pos.y - 1, pos.z), -Vector2.up);
-
-        foreach ( RaycastHit2D hit in hits ) {
-            if (hit.collider.tag == "Player" ){
-                ShootOnPlayer(transform.position);
-            }
-        }
+    void FixedUpdate() {
+        ShootOnPlayer(transform.position);
         
     }
 

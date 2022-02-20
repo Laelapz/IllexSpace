@@ -19,10 +19,8 @@ public class EnemyScript : MonoBehaviour
 
     }
 
-    void OnCollisionEnter2D( Collision2D collision ) {
-        if( collision.collider.tag == "Player" || collision.collider.tag == "MyBullet" || collision.collider.tag == "EnemyBullet" ) {
-            DamageEnemy(playerDamage);
-        }
+    void OnTriggerEnter2D() {
+        DamageEnemy(playerDamage);
     }
 
     void DamageEnemy ( int damage ) {
@@ -35,7 +33,9 @@ public class EnemyScript : MonoBehaviour
     void DestroyEnemy (Vector3 pos) {
         if ( pos.y < -Camera.main.orthographicSize - 1 ) {
             Destroy(gameObject);
-            worldManager.IncreasePoints(xpBase);
+            if ( life <= 0 ) { 
+                worldManager.IncreasePoints(xpBase);
+            }
             int num = Random.Range(0, 4);
             worldManager.ActivatePower(num);
         }

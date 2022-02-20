@@ -13,6 +13,7 @@ public class WorldManager : MonoBehaviour
 
     public GameObject UIHolder;
     private int score = 0;
+    private float actualTime = 0f;
 
     void Start()
     {
@@ -27,29 +28,43 @@ public class WorldManager : MonoBehaviour
     {
         float distance = Camera.main.orthographicSize + 1;
         var rot = new Quaternion(0, 0, 0, 0);
-        if ( Input.GetKeyDown(KeyCode.Mouse1) ) {
-            InstantiateEnemies(distance, rot);
-        }
+        InstantiateEnemies(distance, rot);
         
     }
 
     void InstantiateEnemies (float distance, Quaternion rot) {
+        if ( actualTime > 2) {
+            
+            float ScreenRatio = (float)Screen.width / (float)Screen.height;
+            float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
 
-        int num = Random.Range(0, 2 );
-        GameObject enemy = null;
+            int num = Random.Range(0, 2 );
+            int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
+            
+            
 
-        if ( num == 0 ){
-            enemy = Instantiate(Enemy1, new Vector3(0, distance, 0), rot);
-        }else{
-            enemy = Instantiate(Enemy2, new Vector3(0, distance, 0), rot);
+            Debug.Log(ScreenOrtho);
+
+            GameObject enemy = null;
+
+            if ( num == 0 ){
+                enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -1), rot);
+            }else{
+                enemy = Instantiate(Enemy2, new Vector3(pos_x, distance, -1), rot);
+            }
+            
+            int playerdamage = Player.GetComponents<PlayerController>()[0].damage;
+            var EnemyVars = enemy.GetComponent<EnemyScript>();
+            EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
+            EnemyVars.playerDamage = playerdamage;
+            EnemyVars.life = 2;
+            EnemyVars.xpBase = 2;
+
+            actualTime = 0f;
         }
-        
-        int playerdamage = Player.GetComponents<PlayerController>()[0].damage;
-        var EnemyVars = enemy.GetComponent<EnemyScript>();
-        EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
-        EnemyVars.playerDamage = playerdamage;
-        EnemyVars.life = 2;
-        EnemyVars.xpBase = 2;
+        else {
+            actualTime += Time.deltaTime;
+        }
     }
 
     public void IncreasePoints (int xp) {

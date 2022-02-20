@@ -43,10 +43,8 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Middle", true);
         }
     }
-    void OnCollisionEnter2D (Collision2D collision) {
-        if ( collision.collider.tag != "MyBullet" ) {
-            Dead();
-        }
+    void OnTriggerEnter2D () {
+        Dead();
     }
     void Dead () {
         transform.position = new Vector3(0, -4, -2);

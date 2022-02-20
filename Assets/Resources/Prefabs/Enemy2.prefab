@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5737535268162489973}
   - component: {fileID: 4648599589673210953}
   - component: {fileID: 6850221402472397086}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy2
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 842868269004555885}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 2}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_Children:
   - {fileID: 1531268822040118313}
   m_Father: {fileID: 0}
@@ -94,8 +94,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f56eae357fed8dd4790067dc666ce621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerDamage: 0
-  speed: 1
+  playerDamage: 0
+  worldManager: {fileID: 0}
+  speed: 0.5
+  xpBase: 0
   life: 1
 --- !u!114 &6850221402472397086
 MonoBehaviour:
@@ -110,8 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShootEnemy: {fileID: 430672639735704972, guid: ebf6d8e04dcb4ad47b4e48b2cb8fb81c, type: 3}
-  Mira: {fileID: 8888619447767382067}
-  ReloadShoot: 1
+  ReloadShoot: 3
 --- !u!1 &6197854951331038877
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +124,7 @@ GameObject:
   - component: {fileID: 1531268822040118313}
   - component: {fileID: 4483461947173126870}
   - component: {fileID: 3202659284437811655}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5553260649557141002}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mira
   m_TagString: Untagged
   m_Icon: {fileID: 0}
