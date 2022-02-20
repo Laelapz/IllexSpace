@@ -2,14 +2,12 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
-    public int PlayerDamage;
-    public float speed = 1f;
-    public int life = 1;
+    public int playerDamage;
 
-    void Start()
-    {
-        
-    }
+    public WorldManager worldManager;
+    public float speed = 1f;
+    public int xpBase = 1;
+    public int life = 1;
 
     // Update is called once per frame
     void Update()
@@ -23,7 +21,7 @@ public class EnemyScript : MonoBehaviour
 
     void OnCollisionEnter2D( Collision2D collision ) {
         if( collision.collider.tag == "Player" || collision.collider.tag == "MyBullet" || collision.collider.tag == "EnemyBullet" ) {
-            DamageEnemy(PlayerDamage);
+            DamageEnemy(playerDamage);
         }
     }
 
@@ -37,6 +35,7 @@ public class EnemyScript : MonoBehaviour
     void DestroyEnemy (Vector3 pos) {
         if ( pos.y < -Camera.main.orthographicSize - 1 ) {
             Destroy(gameObject);
+            worldManager.IncreasePoints(xpBase);
         }
     }
 }

@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     void Dead () {
-        transform.position = new Vector3(0, -4, 0);
+        transform.position = new Vector3(0, -4, -2);
     }
 
     void PlayerShoot (Vector3 pos, float z_rot) {

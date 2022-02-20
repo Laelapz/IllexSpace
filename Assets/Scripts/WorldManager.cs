@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldManager : MonoBehaviour
@@ -7,8 +5,13 @@ public class WorldManager : MonoBehaviour
     public GameObject Enemy1;
     public GameObject Enemy2;
     public GameObject Player;
+
+    public GameObject UIHolder;
+    private int score = 0;
+
     void Start()
     {
+        UIHolder = GameObject.Find("Canvas");
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
         
@@ -38,7 +41,22 @@ public class WorldManager : MonoBehaviour
         
         int playerdamage = Player.GetComponents<PlayerController>()[0].damage;
         var EnemyVars = enemy.GetComponent<EnemyScript>();
-        EnemyVars.PlayerDamage = playerdamage;
+        EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
+        EnemyVars.playerDamage = playerdamage;
         EnemyVars.life = 2;
+        EnemyVars.xpBase = 2;
+    }
+
+    public void IncreasePoints (int xp) {
+        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+        score += xp;
+        Text.text = score.ToString();
+    }
+
+    public void ActivatePower () {
+        UnityEngine.UI.Image PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
+        UnityEngine.UI.Image Power = PowerHolder.GetComponentInChildren<UnityEngine.UI.Image>();
+        Power.sprite = null;
+    
     }
 }
