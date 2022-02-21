@@ -6,6 +6,8 @@ public class WorldManager : MonoBehaviour
     public GameObject Enemy2;
     public GameObject Player;
 
+    public GameObject Item;
+
     public Sprite Item1;
     public Sprite Item2;
     public Sprite Item3;
@@ -14,12 +16,14 @@ public class WorldManager : MonoBehaviour
     public GameObject UIHolder;
     private int score = 0;
     private float actualTime = 0f;
+    private float itemTime = 0f;
 
     void Start()
     {
         UIHolder = GameObject.Find("Canvas");
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
+        Item = (GameObject)Resources.Load("Prefabs/PowerUp", typeof(GameObject));
         
     }
 
@@ -29,6 +33,7 @@ public class WorldManager : MonoBehaviour
         float distance = Camera.main.orthographicSize + 1;
         var rot = new Quaternion(0, 0, 0, 0);
         InstantiateEnemies(distance, rot);
+        InstantiateItens(distance, rot);
         
     }
 
@@ -40,10 +45,6 @@ public class WorldManager : MonoBehaviour
 
             int num = Random.Range(0, 2 );
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
-            
-            
-
-            Debug.Log(ScreenOrtho);
 
             GameObject enemy = null;
 
@@ -67,6 +68,42 @@ public class WorldManager : MonoBehaviour
         }
     }
 
+    void InstantiateItens (float distance, Quaternion rot) {
+
+        if ( itemTime > 10 ) {
+            int num = Random.Range(0, 4);
+
+            float ScreenRatio = (float)Screen.width / (float)Screen.height;
+            float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
+
+            int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
+            GameObject item = null;
+
+            if ( num == 1 ) {
+                item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
+                item.GetComponent<PowerUpScript>().type = 1;
+                item.GetComponent<PowerUpScript>().worldManager = gameObject.GetComponent<WorldManager>();
+                item.GetComponent<PowerUpScript>().SetSprite(Item1);
+            }
+            else if ( num == 2 ) {
+                item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
+                item.GetComponent<PowerUpScript>().type = 2;
+                item.GetComponent<PowerUpScript>().worldManager = gameObject.GetComponent<WorldManager>();
+                item.GetComponent<PowerUpScript>().SetSprite(Item2);
+            }
+            else if ( num == 3 ) {
+                item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
+                item.GetComponent<PowerUpScript>().type = 3;
+                item.GetComponent<PowerUpScript>().worldManager = gameObject.GetComponent<WorldManager>();
+                item.GetComponent<PowerUpScript>().SetSprite(Item3);
+            }
+
+            itemTime = 0f;
+        }
+        else {
+            itemTime += Time.deltaTime;
+        }
+    }
     public void IncreasePoints (int xp) {
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
         score += xp;

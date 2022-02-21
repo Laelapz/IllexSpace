@@ -43,8 +43,10 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Middle", true);
         }
     }
-    void OnTriggerEnter2D () {
-        Dead();
+    void OnTriggerEnter2D (Collider2D Obj) {
+        if ( Obj.gameObject.tag != "PowerUp" ){
+            Dead();
+        }
     }
     void Dead () {
         transform.position = new Vector3(0, -4, -2);

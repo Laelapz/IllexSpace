@@ -36,8 +36,6 @@ public class EnemyScript : MonoBehaviour
             if ( life <= 0 ) { 
                 worldManager.IncreasePoints(xpBase);
             }
-            int num = Random.Range(0, 4);
-            worldManager.ActivatePower(num);
         }
     }
 }

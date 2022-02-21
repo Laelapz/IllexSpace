@@ -4,9 +4,7 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - MyBullet
-  - Enemy
-  - EnemyBullet
+  - PowerUp
   layers:
   - Default
   - TransparentFX
@@ -14,10 +12,10 @@ TagManager:
   - 
   - Water
   - UI
+  - PowerUp
   - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
   - 
   - 
   - 
