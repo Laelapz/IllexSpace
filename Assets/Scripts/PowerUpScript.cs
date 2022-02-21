@@ -26,6 +26,15 @@ public class PowerUpScript : MonoBehaviour
     void OnTriggerEnter2D () {
         Debug.Log("Entrou no powerup");
         worldManager.ActivatePower(type);
+
+        if ( type == 1) {
+            worldManager.ChoiceBonus("SmallGuy");
+        }
+
+        if ( type == 2) {
+            worldManager.ChoiceBonus("BulletSize");
+        }
+
         Destroy(gameObject);
     }
 

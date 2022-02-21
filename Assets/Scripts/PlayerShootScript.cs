@@ -4,12 +4,11 @@ public class PlayerShootScript : MonoBehaviour
 {
 
     public float speed = 1f;
-
     public string type = "player";
     public int dir = 1;
     void Start()
     {
-        
+        // transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
     }
 
     // Update is called once per frame

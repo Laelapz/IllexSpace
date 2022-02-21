@@ -1,10 +1,13 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WorldManager : MonoBehaviour
 {
     public GameObject Enemy1;
     public GameObject Enemy2;
     public GameObject Player;
+
+    private PlayerController PlayerScript;
 
     public GameObject Item;
 
@@ -17,9 +20,21 @@ public class WorldManager : MonoBehaviour
     private int score = 0;
     private float actualTime = 0f;
     private float itemTime = 0f;
+    private float powerUpTimer;
+    private bool isPowerActive = false;
+    public Dictionary<string, string> PlayerData = new Dictionary<string, string>();
 
     void Start()
     {
+        PlayerScript = Player.GetComponent<PlayerController>();
+
+        ResetPlayerStats();
+
+        PlayerData["Damage"] = "1";
+        PlayerData["BulletSize"] = "0.0";
+        PlayerData["BulletSpeed"] = "10";
+        PlayerData["PlayerSize"] = "0.0";
+
         UIHolder = GameObject.Find("Canvas");
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
@@ -32,8 +47,21 @@ public class WorldManager : MonoBehaviour
     {
         float distance = Camera.main.orthographicSize + 1;
         var rot = new Quaternion(0, 0, 0, 0);
-        InstantiateEnemies(distance, rot);
+        // InstantiateEnemies(distance, rot);
         InstantiateItens(distance, rot);
+        PowerUpTimer();
+
+        if ( Input.GetKeyDown(KeyCode.KeypadMinus) ) {
+            ChoiceBonus("PlayerSize");
+        }
+
+        if ( Input.GetKeyDown(KeyCode.KeypadPlus) ) {
+            ChoiceBonus("BulletSize");
+        }
+
+        if ( Input.GetKeyDown(KeyCode.R) ) {
+            ResetPowerUp();
+        }
         
     }
 
@@ -116,10 +144,15 @@ public class WorldManager : MonoBehaviour
 
         if ( type == 1 ){
             Power.sprite = Item1;
-
+            float PlayerScale = -0.5f;
+            powerUpTimer = 5f;
+            Vector3 actualScale = Player.transform.localScale;
+            Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
+            isPowerActive = true;
         }
         else if ( type == 2 ) {
             Power.sprite = Item2;
+            Player.GetComponent<PlayerController>().canDamage = false;
 
         }
         else if ( type == 3 ) {
@@ -132,4 +165,50 @@ public class WorldManager : MonoBehaviour
 
     
     }
+
+    public void ResetPlayerStats () {
+        PlayerScript.BulletSize = 0.01f;
+        PlayerScript.speed = 5;
+        Player.transform.localScale = new Vector3(1, 1, 1);
+        PlayerScript.canDamage = true;
+    }
+    public void ChoiceBonus (string op) {
+        if ( op == "BulletSize" ) {
+            PlayerData["BulletSize"] = (float.Parse(PlayerData["BulletSize"]) + 0.01).ToString();
+            PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
+        }
+
+        else if ( op == "PlayerSize" ) {
+            PlayerData["PlayerSize"] = (float.Parse(PlayerData["BulletSize"]) - 0.01).ToString();
+            float PlayerScale = float.Parse(PlayerData["PlayerSize"]);
+            Vector3 actualScale = Player.transform.localScale;
+            Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
+        }
+
+    }
+
+    public void PowerUpTimer () {
+        if ( isPowerActive ) {
+            if ( powerUpTimer > 0) {
+                powerUpTimer -= Time.deltaTime;
+            }
+            else {
+                isPowerActive = false;
+                powerUpTimer = 0f;
+                ResetPowerUp();
+            }
+        }
+    }
+    public void ResetPowerUp () {
+        PlayerScript.damage = 1;
+        PlayerScript.canDamage = true;
+
+        float scale = float.Parse(PlayerData["PlayerSize"]);
+        Player.transform.localScale = new Vector3(1+scale, 1+scale, 1+scale);
+
+        scale = float.Parse(PlayerData["BulletSize"]);
+        PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
+    }
+
 }
+

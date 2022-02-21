@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour
     public GameObject Boost;
     public float speed;
     public int damage = 1;
-
+    public float BulletSize = 0.01f;
+    public bool canDamage = true;
     private float PlayerBoundary = 0.5f;
     void Update()
     {
@@ -44,7 +45,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     void OnTriggerEnter2D (Collider2D Obj) {
-        if ( Obj.gameObject.tag != "PowerUp" ){
+        if ( Obj.gameObject.tag != "PowerUp" && canDamage ){
             Dead();
         }
     }
@@ -58,8 +59,8 @@ public class PlayerController : MonoBehaviour
 
             Quaternion rot = new Quaternion(0, 0, z_rot, 0);
             var shoot = Instantiate(Shoot, pos, rot);
-            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), shoot.GetComponent<Collider2D>());
-            
+            shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
+        
         }
 
     }
