@@ -8,9 +8,12 @@ public class WorldManager : MonoBehaviour
     public GameObject Player;
 
     private PlayerController PlayerScript;
-
     public GameObject Item;
-
+    public GameObject PauseScreen;
+    public GameObject PowerScreen;
+    public UnityEngine.UI.Text Option1;
+    public UnityEngine.UI.Text Option2;
+    public UnityEngine.UI.Text Option3;
     public Sprite Item1;
     public Sprite Item2;
     public Sprite Item3;
@@ -19,11 +22,16 @@ public class WorldManager : MonoBehaviour
     public GameObject UIHolder;
     UnityEngine.UI.Image PowerHolder;
     UnityEngine.UI.Image Power;
+
     private int score = 0;
+    private int maxScore = 0;
+    private float nextLvl = 5f;
     private float actualTime = 0f;
     private float itemTime = 0f;
+    private List<string> ChoiceItens = new List<string>();
     private float powerUpTimer;
     private bool isPowerActive = false;
+    private bool IsPaused = false;
     public Dictionary<string, string> PlayerData = new Dictionary<string, string>();
 
     void Start()
@@ -56,20 +64,30 @@ public class WorldManager : MonoBehaviour
         InstantiateItens(distance, rot);
         PowerUpTimer();
 
-        if ( Input.GetKeyDown(KeyCode.KeypadMinus) ) {
-            ChoiceBonus("PlayerSize");
-        }
-
-        if ( Input.GetKeyDown(KeyCode.KeypadPlus) ) {
-            ChoiceBonus("BulletSize");
-        }
-
         if ( Input.GetKeyDown(KeyCode.R) ) {
-            ResetPowerUp();
+            IncreasePoints(1);
         }
         
+        if ( Input.GetKeyDown(KeyCode.P) ) {
+            GenerateChoiceItens();
+            if ( IsPaused ) {
+                PauseScreen.SetActive(false);
+                Time.timeScale = 1f;
+                IsPaused  = false;
+            }
+            else {
+                PauseScreen.SetActive(true);
+                Time.timeScale = 0f;
+                IsPaused = true;
+            }
+        }
     }
 
+    public void UnpauseGame () {
+        PauseScreen.SetActive(false);
+        Time.timeScale = 1f;
+        IsPaused = false;
+    }
     void InstantiateEnemies (float distance, Quaternion rot) {
         if ( actualTime > 2) {
             
@@ -139,7 +157,16 @@ public class WorldManager : MonoBehaviour
     public void IncreasePoints (int xp) {
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
         score += xp;
-        Text.text = score.ToString();
+        if ( ((int)score) > ((int)maxScore) ) {
+            maxScore = score;
+        }
+        Text.text = score.ToString() + "\n"+maxScore.ToString();
+        
+        if ( score >= nextLvl ) {
+            Time.timeScale = 0f;
+            nextLvl *= 2f;
+            GenerateChoiceItens();
+        }
     }
 
     public void ActivatePower (int type) {
@@ -183,16 +210,23 @@ public class WorldManager : MonoBehaviour
         Player.transform.localScale = new Vector3(1, 1, 1);
         PlayerScript.canDamage = true;
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
-        Text.text = "0";
+        Text.text = "0\n"+maxScore;
+        score = 0;
+        nextLvl = 5f;
         ResetPowerUp();
     }
-    public void ChoiceBonus (string op) {
-        if ( op == "BulletSize" ) {
+    public void ChoiceBonus (int numOption) {
+
+        string op = ChoiceItens[numOption];
+        PowerScreen.SetActive(false);
+        Time.timeScale = 1f;
+
+        if ( op == "bullet size" ) {
             PlayerData["BulletSize"] = (float.Parse(PlayerData["BulletSize"]) + 0.01).ToString();
             PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
         }
 
-        else if ( op == "PlayerSize" ) {
+        else if ( op == "player size" ) {
             PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) - 0.01).ToString();
             float PlayerScale = float.Parse(PlayerData["PlayerSize"]);
             Vector3 actualScale = Player.transform.localScale;
@@ -202,6 +236,14 @@ public class WorldManager : MonoBehaviour
             }else{
                 PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) + 0.01).ToString();
             }
+        }
+
+        else if ( op == "player speed" ) {
+            PlayerScript.speed += 1;
+        }
+
+        else if ( op == "bullet speed" ) {
+            PlayerScript.BulletSpeed += 0.1f;
         }
 
     }
@@ -231,7 +273,39 @@ public class WorldManager : MonoBehaviour
         scale = float.Parse(PlayerData["BulletSize"]);
         PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
     }
+    public void GenerateChoiceItens () {
+        ChoiceItens.Clear();
+        List <string> options = new List<string>();
+        options.Add("bullet speed");
+        options.Add("player speed");
+        options.Add("bullet size");
+        options.Add("player size");
+        options.Add("enemy size");
+        
+        for (int i = 0; i < 3; i++){
+            int num = Random.Range(i, options.Count);
+            ChoiceItens.Add(options[num]);
+            options.Remove(options[num]);
+        }
 
+        Option1.text = ChoiceItens[0];
+        Option2.text = ChoiceItens[1];
+        Option3.text = ChoiceItens[2];
+
+        PowerScreen.SetActive(true);
+    }
+
+    public void SelectedOp1 () {
+        ChoiceBonus(0);
+    }
+
+    public void SelectedOp2 () {
+        ChoiceBonus(1);
+    }
+
+    public void SelectedOp3 () {
+        ChoiceBonus(2);
+    }
 }
 
 // if ( type == 1) {

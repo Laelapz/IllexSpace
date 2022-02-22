@@ -18,6 +18,8 @@ public class EnemyShoot2 : MonoBehaviour
                 Quaternion rot = new Quaternion(0, 0, 5, 0);
                 pos.z = -1;
                 var shoot = Instantiate(ShootEnemy, pos, rot);
+                shoot.GetComponent<PlayerShootScript>().shootColor.color = new Color(1, 1, 0, 1);
+                shoot.GetComponent<PlayerShootScript>().shootParticleColor.startColor = new Color(1, 1, 0, 1);
                 shoot.transform.Rotate(new Vector3(0, 0, rot_z));
                 shoot.GetComponent<PlayerShootScript>().speed = 2;
             }

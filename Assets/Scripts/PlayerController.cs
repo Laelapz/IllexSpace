@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public int damage = 1;
     public float BulletSize = 0.01f;
+
+    public float BulletSpeed = 0f;
     public bool canDamage = true;
     public bool canMove = true;
     public bool isDead = false;
@@ -107,12 +109,14 @@ public class PlayerController : MonoBehaviour
             if (ShootPower) {
                 for(int begin = -15; begin < 15; begin += 5) {
                     var shoot = Instantiate(Shoot, pos, rot);
+                    shoot.GetComponent<PlayerShootScript>().speed = 1+BulletSpeed;
                     shoot.transform.Rotate(new Vector3(0, 0, begin));
                     shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
                 }
             }
             else {
                 var shoot = Instantiate(Shoot, pos, rot);
+                shoot.GetComponent<PlayerShootScript>().speed = 1+BulletSpeed;
                 shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
 
             }
