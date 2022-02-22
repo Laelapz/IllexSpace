@@ -25,11 +25,11 @@ public class BackgroundScript : MonoBehaviour
         BG2.transform.position = new Vector3(0, B2pos_y, 0);
 
         if ( BG1.transform.position.y < -7 ) {
-            BG1.transform.position = new Vector3(0, 7, 2);
+            BG1.transform.position = new Vector3(0, 6.6f, 2);
         }
 
         if ( BG2.transform.position.y < -7 ) {
-            BG2.transform.position = new Vector3(0, 7, 2);
+            BG2.transform.position = new Vector3(0, 6.6f, 2);
         }
         
     }

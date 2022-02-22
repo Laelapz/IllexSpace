@@ -5,6 +5,7 @@ public class WorldManager : MonoBehaviour
 {
     public GameObject Enemy1;
     public GameObject Enemy2;
+    public GameObject Enemy3;
     public GameObject Player;
 
     private PlayerController PlayerScript;
@@ -94,15 +95,19 @@ public class WorldManager : MonoBehaviour
             float ScreenRatio = (float)Screen.width / (float)Screen.height;
             float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
 
-            int num = Random.Range(0, 2 );
+            int num = Random.Range(0, 3 );
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
 
             GameObject enemy = null;
 
             if ( num == 0 ){
                 enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -1), rot);
-            }else{
+            }
+            else if ( num == 1) {
                 enemy = Instantiate(Enemy2, new Vector3(pos_x, distance, -1), rot);
+            }
+            else {
+                enemy = Instantiate(Enemy3, new Vector3(pos_x, distance, -1), rot);
             }
             
             int playerdamage = Player.GetComponents<PlayerController>()[0].damage;

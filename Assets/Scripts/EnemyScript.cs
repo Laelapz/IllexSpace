@@ -8,6 +8,7 @@ public class EnemyScript : MonoBehaviour
     public float speed = 1f;
     public int xpBase = 1;
     public int life = 1;
+    public bool canDamage = true;
     private bool IsDead = false;
 
     // Update is called once per frame
@@ -25,10 +26,12 @@ public class EnemyScript : MonoBehaviour
     }
 
     void DamageEnemy ( int damage ) {
-        life -= damage;
+        if ( canDamage ) {
+            life -= damage;
 
-        if ( life <= 0 ) {
-            DestroyEnemy(new Vector3(0, -1000, 0));
+            if ( life <= 0 ) {
+                DestroyEnemy(new Vector3(0, -1000, 0));
+            }
         }
     }
     void DestroyEnemy (Vector3 pos) {
