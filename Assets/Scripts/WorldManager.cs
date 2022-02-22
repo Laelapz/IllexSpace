@@ -30,8 +30,6 @@ public class WorldManager : MonoBehaviour
     {
         PlayerScript = Player.GetComponent<PlayerController>();
 
-        ResetPlayerStats();
-
         PlayerData["Damage"] = "1";
         PlayerData["BulletSize"] = "0.0";
         PlayerData["BulletSpeed"] = "10";
@@ -44,6 +42,8 @@ public class WorldManager : MonoBehaviour
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
         Item = (GameObject)Resources.Load("Prefabs/PowerUp", typeof(GameObject));
+
+        ResetPlayerStats();
         
     }
 
@@ -102,8 +102,7 @@ public class WorldManager : MonoBehaviour
     }
 
     void InstantiateItens (float distance, Quaternion rot) {
-        //mudar para 10
-        if ( itemTime > 2 ) {
+        if ( itemTime > 10 ) {
             int num = Random.Range(0, 4);
 
             float ScreenRatio = (float)Screen.width / (float)Screen.height;
@@ -179,10 +178,13 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ResetPlayerStats () {
-        PlayerScript.BulletSize = 0.01f;
+        PlayerScript.BulletSize = 0.02f;
         PlayerScript.speed = 5;
         Player.transform.localScale = new Vector3(1, 1, 1);
         PlayerScript.canDamage = true;
+        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+        Text.text = "0";
+        ResetPowerUp();
     }
     public void ChoiceBonus (string op) {
         if ( op == "BulletSize" ) {

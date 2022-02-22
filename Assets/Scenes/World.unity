@@ -959,6 +959,10 @@ PrefabInstance:
       propertyPath: PlayerPos
       value: 
       objectReference: {fileID: 1250348739}
+    - target: {fileID: 7643186275379415163, guid: bea0089de7f64e042b8d5023ce8cb14d, type: 3}
+      propertyPath: worldManager
+      value: 
+      objectReference: {fileID: 759634961}
     - target: {fileID: 8444220282585704843, guid: bea0089de7f64e042b8d5023ce8cb14d, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
