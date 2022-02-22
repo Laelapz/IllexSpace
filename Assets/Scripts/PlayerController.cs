@@ -7,11 +7,18 @@ public class PlayerController : MonoBehaviour
     public Animator animator;
     public GameObject Shoot;
     public GameObject Boost;
+    public ParticleSystem ShieldParticles;
     public float speed;
     public int damage = 1;
     public float BulletSize = 0.01f;
     public bool canDamage = true;
+    public bool ShootPower = false;
     private float PlayerBoundary = 0.5f;
+
+
+    void Start () {
+        ShieldParticles.Pause();
+    }
     void Update()
     {
         Vector3 pos = transform.position;
@@ -26,6 +33,16 @@ public class PlayerController : MonoBehaviour
         
     }
 
+    public void StartShield () {
+        ShieldParticles.Play();
+    }
+
+    public void StopShield () {
+        ShieldParticles.Pause();
+        ShieldParticles.Stop();
+        ShieldParticles.time = 0f;
+
+    }
     void UpdateAnimation () {
         if ( Input.GetAxis("Horizontal") > 0 ){
             Boost.transform.localScale = new Vector3(2, 3, 1);
@@ -58,8 +75,18 @@ public class PlayerController : MonoBehaviour
         if ( Input.GetKeyDown(KeyCode.Mouse0 ) ) {
 
             Quaternion rot = new Quaternion(0, 0, z_rot, 0);
-            var shoot = Instantiate(Shoot, pos, rot);
-            shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
+            if (ShootPower) {
+                for(int begin = -15; begin < 15; begin += 5) {
+                    var shoot = Instantiate(Shoot, pos, rot);
+                    shoot.transform.Rotate(new Vector3(0, 0, begin));
+                    shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
+                }
+            }
+            else {
+                var shoot = Instantiate(Shoot, pos, rot);
+                shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
+
+            }
         
         }
 

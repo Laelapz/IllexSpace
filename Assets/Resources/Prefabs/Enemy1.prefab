@@ -165,6 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerDamage: 0
   worldManager: {fileID: 0}
+  animator: {fileID: 3202659284437811655}
   speed: 1
   xpBase: 1
   life: 1

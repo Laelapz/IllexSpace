@@ -23,19 +23,11 @@ public class PowerUpScript : MonoBehaviour
         
     }
 
-    void OnTriggerEnter2D () {
-        Debug.Log("Entrou no powerup");
-        worldManager.ActivatePower(type);
-
-        if ( type == 1) {
-            worldManager.ChoiceBonus("SmallGuy");
+    void OnTriggerEnter2D (Collider2D collider) {
+        if (    collider.tag != "MyBullet" ) {
+            worldManager.ActivatePower(type);
+            Destroy(gameObject);
         }
-
-        if ( type == 2) {
-            worldManager.ChoiceBonus("BulletSize");
-        }
-
-        Destroy(gameObject);
     }
 
     public void SetSprite(Sprite sprite) {

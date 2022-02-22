@@ -17,6 +17,8 @@ public class WorldManager : MonoBehaviour
     public Sprite EmptyItem;
 
     public GameObject UIHolder;
+    UnityEngine.UI.Image PowerHolder;
+    UnityEngine.UI.Image Power;
     private int score = 0;
     private float actualTime = 0f;
     private float itemTime = 0f;
@@ -36,6 +38,9 @@ public class WorldManager : MonoBehaviour
         PlayerData["PlayerSize"] = "0.0";
 
         UIHolder = GameObject.Find("Canvas");
+        PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
+        Power = PowerHolder.GetComponentInChildren<UnityEngine.UI.Image>();
+
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
         Item = (GameObject)Resources.Load("Prefabs/PowerUp", typeof(GameObject));
@@ -47,7 +52,7 @@ public class WorldManager : MonoBehaviour
     {
         float distance = Camera.main.orthographicSize + 1;
         var rot = new Quaternion(0, 0, 0, 0);
-        // InstantiateEnemies(distance, rot);
+        InstantiateEnemies(distance, rot);
         InstantiateItens(distance, rot);
         PowerUpTimer();
 
@@ -97,8 +102,8 @@ public class WorldManager : MonoBehaviour
     }
 
     void InstantiateItens (float distance, Quaternion rot) {
-
-        if ( itemTime > 10 ) {
+        //mudar para 10
+        if ( itemTime > 2 ) {
             int num = Random.Range(0, 4);
 
             float ScreenRatio = (float)Screen.width / (float)Screen.height;
@@ -139,24 +144,31 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ActivatePower (int type) {
-        UnityEngine.UI.Image PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
-        UnityEngine.UI.Image Power = PowerHolder.GetComponentInChildren<UnityEngine.UI.Image>();
 
         if ( type == 1 ){
             Power.sprite = Item1;
             float PlayerScale = -0.5f;
             powerUpTimer = 5f;
             Vector3 actualScale = Player.transform.localScale;
-            Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
-            isPowerActive = true;
+
+            if ( actualScale.x + PlayerScale > 0.1 ) {
+                Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
+                isPowerActive = true;
+            }
         }
         else if ( type == 2 ) {
             Power.sprite = Item2;
-            Player.GetComponent<PlayerController>().canDamage = false;
+            PlayerScript.canDamage = false;
+            PlayerScript.StartShield();
+            powerUpTimer = 5f;
+            isPowerActive = true;
 
         }
         else if ( type == 3 ) {
             Power.sprite = Item3;
+            PlayerScript.ShootPower = true;
+            powerUpTimer = 8f;
+            isPowerActive = true;
 
         }
         else{
@@ -179,10 +191,15 @@ public class WorldManager : MonoBehaviour
         }
 
         else if ( op == "PlayerSize" ) {
-            PlayerData["PlayerSize"] = (float.Parse(PlayerData["BulletSize"]) - 0.01).ToString();
+            PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) - 0.01).ToString();
             float PlayerScale = float.Parse(PlayerData["PlayerSize"]);
             Vector3 actualScale = Player.transform.localScale;
-            Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
+
+            if ( Player.transform.localScale.x + PlayerScale > 0.1 ) {
+                Player.transform.localScale = new Vector3(1 + PlayerScale, 1 + PlayerScale, 1 + PlayerScale);
+            }else{
+                PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) + 0.01).ToString();
+            }
         }
 
     }
@@ -200,8 +217,11 @@ public class WorldManager : MonoBehaviour
         }
     }
     public void ResetPowerUp () {
+        Power.sprite = EmptyItem;
         PlayerScript.damage = 1;
         PlayerScript.canDamage = true;
+        PlayerScript.ShootPower = false;
+        PlayerScript.StopShield();
 
         float scale = float.Parse(PlayerData["PlayerSize"]);
         Player.transform.localScale = new Vector3(1+scale, 1+scale, 1+scale);
@@ -212,3 +232,10 @@ public class WorldManager : MonoBehaviour
 
 }
 
+// if ( type == 1) {
+//                 worldManager.ChoiceBonus("PlayerSize");
+//             }
+
+//             if ( type == 2) {
+//                 worldManager.ChoiceBonus("BulletSize");
+//             }

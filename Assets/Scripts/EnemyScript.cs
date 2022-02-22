@@ -3,8 +3,8 @@ using UnityEngine;
 public class EnemyScript : MonoBehaviour
 {
     public int playerDamage;
-
     public WorldManager worldManager;
+    public Animator animator;
     public float speed = 1f;
     public int xpBase = 1;
     public int life = 1;
@@ -32,7 +32,8 @@ public class EnemyScript : MonoBehaviour
     }
     void DestroyEnemy (Vector3 pos) {
         if ( pos.y < -Camera.main.orthographicSize - 1 ) {
-            Destroy(gameObject);
+            animator.SetBool("IsDead", true);
+            Destroy(gameObject, 0.30f);
             if ( life <= 0 ) { 
                 worldManager.IncreasePoints(xpBase);
             }
