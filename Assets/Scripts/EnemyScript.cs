@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
+    public AudioSource EnemyEffects;
+
     public int playerDamage;
     public WorldManager worldManager;
     public Animator animator;
@@ -27,6 +29,7 @@ public class EnemyScript : MonoBehaviour
 
     void DamageEnemy ( int damage ) {
         if ( canDamage ) {
+            EnemyEffects.Play();
             life -= damage;
 
             if ( life <= 0 ) {

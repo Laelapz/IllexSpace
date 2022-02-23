@@ -3,8 +3,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
-    public Rigidbody2D Player;
+    public AudioSource PlayerEffects;
+    public AudioClip laserSound;
+    public AudioClip damageSound;
 
+    public Rigidbody2D Player;
     public WorldManager worldManager;
     public Animator animator;
     public Animator boostAnimator;
@@ -30,7 +33,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 pos;
         
-        if ( canMove ){
+        if ( canMove && !worldManager.IsPaused ){
             pos = transform.position;
             transform.rotation = new Quaternion(0, 0, 0, 0);
             pos.y += Input.GetAxis("Vertical") * speed * Time.deltaTime;
@@ -78,6 +81,10 @@ public class PlayerController : MonoBehaviour
             canMove = false;
             animator.SetBool("IsDead", true);
             boostAnimator.SetBool("IsDead", true);
+            
+            PlayerEffects.clip = damageSound;
+            PlayerEffects.volume = 1f;
+            PlayerEffects.Play();
         }
     }
 
@@ -104,7 +111,9 @@ public class PlayerController : MonoBehaviour
     void PlayerShoot (Vector3 pos, float z_rot) {
 
         if ( Input.GetKeyDown(KeyCode.Mouse0 ) ) {
-
+            PlayerEffects.clip = laserSound;
+            PlayerEffects.volume = 0.7f;
+            PlayerEffects.Play();
             Quaternion rot = new Quaternion(0, 0, z_rot, 0);
             if (ShootPower) {
                 for(int begin = -15; begin < 15; begin += 5) {

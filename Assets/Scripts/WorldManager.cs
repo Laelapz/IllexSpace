@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class WorldManager : MonoBehaviour
 {
+    public AudioSource BackgroundMusic;
     public GameObject Enemy1;
     public GameObject Enemy2;
     public GameObject Enemy3;
@@ -18,6 +19,7 @@ public class WorldManager : MonoBehaviour
     public Sprite Item1;
     public Sprite Item2;
     public Sprite Item3;
+    public Sprite Item4;
     public Sprite EmptyItem;
 
     public GameObject UIHolder;
@@ -26,23 +28,19 @@ public class WorldManager : MonoBehaviour
 
     private int score = 0;
     private int maxScore = 0;
+    private int actualOp = -1;
     private float nextLvl = 5f;
     private float actualTime = 0f;
     private float itemTime = 0f;
     private List<string> ChoiceItens = new List<string>();
     private float powerUpTimer;
     private bool isPowerActive = false;
-    private bool IsPaused = false;
+    public bool IsPaused = false;
     public Dictionary<string, string> PlayerData = new Dictionary<string, string>();
 
     void Start()
     {
         PlayerScript = Player.GetComponent<PlayerController>();
-
-        PlayerData["Damage"] = "1";
-        PlayerData["BulletSize"] = "0.0";
-        PlayerData["BulletSpeed"] = "10";
-        PlayerData["PlayerSize"] = "0.0";
 
         UIHolder = GameObject.Find("Canvas");
         PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
@@ -64,19 +62,16 @@ public class WorldManager : MonoBehaviour
         InstantiateEnemies(distance, rot);
         InstantiateItens(distance, rot);
         PowerUpTimer();
-
-        if ( Input.GetKeyDown(KeyCode.R) ) {
-            IncreasePoints(1);
-        }
         
         if ( Input.GetKeyDown(KeyCode.P) ) {
-            GenerateChoiceItens();
             if ( IsPaused ) {
+                BackgroundMusic.volume = 1f;
                 PauseScreen.SetActive(false);
                 Time.timeScale = 1f;
                 IsPaused  = false;
             }
             else {
+                BackgroundMusic.volume = 0.4f;
                 PauseScreen.SetActive(true);
                 Time.timeScale = 0f;
                 IsPaused = true;
@@ -85,9 +80,13 @@ public class WorldManager : MonoBehaviour
     }
 
     public void UnpauseGame () {
+        BackgroundMusic.volume = 1f;
         PauseScreen.SetActive(false);
         Time.timeScale = 1f;
         IsPaused = false;
+    }
+    public void QuitGame () {
+        Application.Quit();
     }
     void InstantiateEnemies (float distance, Quaternion rot) {
         if ( actualTime > 2) {
@@ -99,23 +98,30 @@ public class WorldManager : MonoBehaviour
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
 
             GameObject enemy = null;
+            EnemyScript EnemyVars = null;
 
             if ( num == 0 ){
-                enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -1), rot);
+                enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -2), rot);
+                EnemyVars = enemy.GetComponent<EnemyScript>();
+                EnemyVars.life = 1;
+                EnemyVars.xpBase = 1;
             }
             else if ( num == 1) {
-                enemy = Instantiate(Enemy2, new Vector3(pos_x, distance, -1), rot);
+                enemy = Instantiate(Enemy2, new Vector3(pos_x, distance, -2), rot);
+                EnemyVars = enemy.GetComponent<EnemyScript>();
+                EnemyVars.life = 2;
+                EnemyVars.xpBase = 2;
             }
             else {
-                enemy = Instantiate(Enemy3, new Vector3(pos_x, distance, -1), rot);
+                enemy = Instantiate(Enemy3, new Vector3(pos_x, distance, -2), rot);
+                EnemyVars = enemy.GetComponent<EnemyScript>();
+                EnemyVars.life = 2;
+                EnemyVars.xpBase = 3;
             }
             
             int playerdamage = Player.GetComponents<PlayerController>()[0].damage;
-            var EnemyVars = enemy.GetComponent<EnemyScript>();
             EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
             EnemyVars.playerDamage = playerdamage;
-            EnemyVars.life = 2;
-            EnemyVars.xpBase = 2;
 
             actualTime = 0f;
         }
@@ -133,8 +139,13 @@ public class WorldManager : MonoBehaviour
 
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
             GameObject item = null;
-
-            if ( num == 1 ) {
+            if (num == 0) {
+                item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
+                item.GetComponent<PowerUpScript>().type = 0;
+                item.GetComponent<PowerUpScript>().worldManager = gameObject.GetComponent<WorldManager>();
+                item.GetComponent<PowerUpScript>().SetSprite(Item4);
+            }
+            else if ( num == 1 ) {
                 item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
                 item.GetComponent<PowerUpScript>().type = 1;
                 item.GetComponent<PowerUpScript>().worldManager = gameObject.GetComponent<WorldManager>();
@@ -175,8 +186,15 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ActivatePower (int type) {
+        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
 
-        if ( type == 1 ){
+        if (type == 0) {
+            IncreasePoints(10);
+            
+            powerUpTimer = 0.1f;
+            isPowerActive = true;
+        }
+        else if ( type == 1 ){
             Power.sprite = Item1;
             float PlayerScale = -0.5f;
             powerUpTimer = 5f;
@@ -210,6 +228,10 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ResetPlayerStats () {
+        PlayerData["BulletSize"] = "0.0";
+        PlayerData["PlayerSize"] = "0.0";
+        PlayerData["BulletSpeed"] = "10";
+
         PlayerScript.BulletSize = 0.02f;
         PlayerScript.speed = 5;
         Player.transform.localScale = new Vector3(1, 1, 1);
@@ -218,10 +240,13 @@ public class WorldManager : MonoBehaviour
         Text.text = "0\n"+maxScore;
         score = 0;
         nextLvl = 5f;
+        
         ResetPowerUp();
     }
     public void ChoiceBonus (int numOption) {
-
+        IsPaused = false;
+        BackgroundMusic.volume = 1f;
+        actualOp = -1;
         string op = ChoiceItens[numOption];
         PowerScreen.SetActive(false);
         Time.timeScale = 1f;
@@ -279,6 +304,8 @@ public class WorldManager : MonoBehaviour
         PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
     }
     public void GenerateChoiceItens () {
+        IsPaused = true;
+        BackgroundMusic.volume = 0.5f;
         ChoiceItens.Clear();
         List <string> options = new List<string>();
         options.Add("bullet speed");
@@ -299,24 +326,18 @@ public class WorldManager : MonoBehaviour
 
         PowerScreen.SetActive(true);
     }
-
+    public void ConfirmItem () {
+        if ( actualOp != -1 ) {
+            ChoiceBonus(actualOp);
+        }
+    }
     public void SelectedOp1 () {
-        ChoiceBonus(0);
+        actualOp = 0;
     }
-
     public void SelectedOp2 () {
-        ChoiceBonus(1);
+        actualOp = 1;
     }
-
     public void SelectedOp3 () {
-        ChoiceBonus(2);
+        actualOp = 2;
     }
 }
-
-// if ( type == 1) {
-//                 worldManager.ChoiceBonus("PlayerSize");
-//             }
-
-//             if ( type == 2) {
-//                 worldManager.ChoiceBonus("BulletSize");
-//             }
