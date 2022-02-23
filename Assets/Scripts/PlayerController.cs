@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
         Vector3 pos;
         
         if ( canMove && !worldManager.IsPaused ){
+            //Caso o player possa se movimentar e o jogo não esteja pausado
+            //Recebe os Inputs de movimento tiro e também limita o mesmo as dimensões da tela
+
             pos = transform.position;
             transform.rotation = new Quaternion(0, 0, 0, 0);
             pos.y += Input.GetAxis("Vertical") * speed * Time.deltaTime;
@@ -50,14 +53,18 @@ public class PlayerController : MonoBehaviour
     }
 
     public void StartShield () {
+        //Deixa o escudo visível ao ser ativado
         ShieldParticles.Play();
         ShieldTranform.localScale = new Vector3(1, 1, 1);
     }
 
     public void StopShield () {
+        //Esconde o escudo ao acabar o tempo de efeito
         ShieldTranform.localScale = new Vector3(0, 0, 0);
     }
     void UpdateAnimation () {
+        //Gerencia todos os booleanos do animator para reproduzir as animações
+
         if ( Input.GetAxis("Horizontal") > 0 ){
             Boost.transform.localScale = new Vector3(2, 3, 1);
             animator.SetBool("Right", true);
@@ -76,7 +83,10 @@ public class PlayerController : MonoBehaviour
         }
     }
     void OnTriggerEnter2D (Collider2D Obj) {
+        //Caso o player colida com algo que não é um power up e possa ser danificado
+
         if ( Obj.gameObject.tag != "PowerUp" && canDamage ){
+            //Seta o estado de morte
             isDead = true;
             canMove = false;
             animator.SetBool("IsDead", true);
@@ -89,6 +99,8 @@ public class PlayerController : MonoBehaviour
     }
 
     void Explosion () {
+        //Caso o player esteja setado como morto
+        //Inicia os sons e animações de morte
         if( isDead ) {
             if(explosionTimer > 0.3f ) {
                 canMove = true;
@@ -109,6 +121,9 @@ public class PlayerController : MonoBehaviour
     }
 
     void PlayerShoot (Vector3 pos, float z_rot) {
+        //Caso o player clique com o mouse instancia um tiro
+        //E se ele tiver com o coletável de tiro instancia vários ao mesmo tempo 
+
 
         if ( Input.GetKeyDown(KeyCode.Mouse0 ) ) {
             PlayerEffects.clip = laserSound;

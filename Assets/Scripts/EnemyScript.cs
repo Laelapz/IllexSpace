@@ -24,10 +24,13 @@ public class EnemyScript : MonoBehaviour
     }
 
     void OnTriggerEnter2D() {
+        //O playerDamage era para se por um acaso eu decidisse implementar aumento de dano por parte do player
         DamageEnemy(playerDamage);
     }
 
     void DamageEnemy ( int damage ) {
+        //Ao tomar dano ativa os efeitos sonoros e visuais de dano
+
         if ( canDamage ) {
             EnemyEffects.Play();
             life -= damage;
@@ -38,6 +41,8 @@ public class EnemyScript : MonoBehaviour
         }
     }
     void DestroyEnemy (Vector3 pos) {
+        //Caso o inimigos esteja fora de tela destroi o mesmo
+
         if ( !IsDead && pos.y < -Camera.main.orthographicSize - 1 ) {
             IsDead = true;
             animator.SetBool("IsDead", true);

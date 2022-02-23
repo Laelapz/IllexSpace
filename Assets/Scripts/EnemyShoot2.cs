@@ -12,6 +12,9 @@ public class EnemyShoot2 : MonoBehaviour
     }
 
     void ShootOnPlayer (Vector3 pos) {
+        //Alterna os efeitos das cores para combinar com o inimigo e gerencia o tempo de espera entre os disparos
+        //Este inimigo atira em leque
+
         if ( ShootTime > ReloadShoot ){
 
             for (int rot_z = -30; rot_z <= 30; rot_z+=15){

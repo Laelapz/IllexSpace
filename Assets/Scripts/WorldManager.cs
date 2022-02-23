@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class WorldManager : MonoBehaviour
@@ -38,6 +39,7 @@ public class WorldManager : MonoBehaviour
     public bool IsPaused = false;
     public Dictionary<string, string> PlayerData = new Dictionary<string, string>();
 
+    //Atribui os diferentes Objetos as suas variáveis
     void Start()
     {
         PlayerScript = Player.GetComponent<PlayerController>();
@@ -54,7 +56,8 @@ public class WorldManager : MonoBehaviour
         
     }
 
-    // Update is called once per frame
+    // O Update tem a função de cuidar dos inputs do player e chamar as funções que vão cuidar de partes específicas do jogo
+    //Ex: movimentação | Pausa | Intanciar Prefabs
     void Update()
     {
         float distance = Camera.main.orthographicSize + 1;
@@ -63,14 +66,17 @@ public class WorldManager : MonoBehaviour
         InstantiateItens(distance, rot);
         PowerUpTimer();
         
-        if ( Input.GetKeyDown(KeyCode.P) ) {
+        if ( Input.GetKeyDown(KeyCode.P) && !PowerScreen.activeSelf) {
+            //Ao pressionar P
             if ( IsPaused ) {
+                //Se esta pausado volta as configurações ao normal
                 BackgroundMusic.volume = 1f;
                 PauseScreen.SetActive(false);
                 Time.timeScale = 1f;
                 IsPaused  = false;
             }
             else {
+                //Se não muda as configurações para parar o jogo e reduzir o volume 
                 BackgroundMusic.volume = 0.4f;
                 PauseScreen.SetActive(true);
                 Time.timeScale = 0f;
@@ -80,17 +86,23 @@ public class WorldManager : MonoBehaviour
     }
 
     public void UnpauseGame () {
+        //Função para despausar através do Resume
         BackgroundMusic.volume = 1f;
         PauseScreen.SetActive(false);
         Time.timeScale = 1f;
         IsPaused = false;
     }
     public void QuitGame () {
-        Application.Quit();
+        Time.timeScale = 1f;
+        IsPaused = false;
+        SceneManager.LoadScene("Assets/Scenes/Menu.unity");
     }
     void InstantiateEnemies (float distance, Quaternion rot) {
+        //Função usa como timer o tempo entre cada frame para spawnar os prefabs
         if ( actualTime > 2) {
+            //Caso já tenha passado o tempo necessário
             
+            //Encontra as proporções da tela para poder definir o range do spawn dos inimigos em relação ao orthographicSize
             float ScreenRatio = (float)Screen.width / (float)Screen.height;
             float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
 
@@ -100,6 +112,7 @@ public class WorldManager : MonoBehaviour
             GameObject enemy = null;
             EnemyScript EnemyVars = null;
 
+            //Setando as variáveis para cada tipo de inimigo
             if ( num == 0 ){
                 enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -2), rot);
                 EnemyVars = enemy.GetComponent<EnemyScript>();
@@ -126,11 +139,13 @@ public class WorldManager : MonoBehaviour
             actualTime = 0f;
         }
         else {
+            //Se não adiciona o tempo passado desde o último frame
             actualTime += Time.deltaTime;
         }
     }
 
     void InstantiateItens (float distance, Quaternion rot) {
+        //Usa a mesma lógica do spawn de inimigos
         if ( itemTime > 10 ) {
             int num = Random.Range(0, 4);
 
@@ -139,6 +154,9 @@ public class WorldManager : MonoBehaviour
 
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
             GameObject item = null;
+
+            //Todos os itens são o mesmo prefab que apenas carregam o seu efeito(type) e o sprite
+
             if (num == 0) {
                 item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
                 item.GetComponent<PowerUpScript>().type = 0;
@@ -171,13 +189,20 @@ public class WorldManager : MonoBehaviour
         }
     }
     public void IncreasePoints (int xp) {
+        //Atualiza os pontos atuais
+
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+
+        //Os pontos também gerenciam um sistema de xp que permite a escolha de bonus conforme progride no game
         score += xp;
+
         if ( ((int)score) > ((int)maxScore) ) {
             maxScore = score;
         }
-        Text.text = score.ToString() + "\n"+maxScore.ToString();
+        Text.text = score.ToString() + "\n\n"+maxScore.ToString();
         
+        //Caso seu score atual seja maior que o limite necessario para passar de lvl
+        //É liberado o acesso a tela de escolha de item e a quantia necessária para upar de nível é dobrada
         if ( score >= nextLvl ) {
             Time.timeScale = 0f;
             nextLvl *= 2f;
@@ -187,6 +212,9 @@ public class WorldManager : MonoBehaviour
 
     public void ActivatePower (int type) {
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+
+        //Todos os itens brincam com as váriáveis do jogo sendo possível diminuir o tamanho do player | aumentar os inimigos
+        //Ficar mais rápido | ter balas maiores, entre outros
 
         if (type == 0) {
             IncreasePoints(10);
@@ -228,6 +256,10 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ResetPlayerStats () {
+        //Função para resetar os status totalmente em caso de morte
+        //Diferente do ResetPowerUp esta função muda o dicionário que monitora os efeitos dos itens escolhidos
+        //Podendo assim acumular bonus ao longo de uma jogatina, mas perdendo todos ao morrer
+
         PlayerData["BulletSize"] = "0.0";
         PlayerData["PlayerSize"] = "0.0";
         PlayerData["BulletSpeed"] = "10";
@@ -237,13 +269,15 @@ public class WorldManager : MonoBehaviour
         Player.transform.localScale = new Vector3(1, 1, 1);
         PlayerScript.canDamage = true;
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
-        Text.text = "0\n"+maxScore;
+        Text.text = "0\n\n"+maxScore;
         score = 0;
         nextLvl = 5f;
         
         ResetPowerUp();
     }
     public void ChoiceBonus (int numOption) {
+        //Desativa a tela de escolha dos itens e aplica o bonus escolhido
+
         IsPaused = false;
         BackgroundMusic.volume = 1f;
         actualOp = -1;
@@ -277,8 +311,9 @@ public class WorldManager : MonoBehaviour
         }
 
     }
-
     public void PowerUpTimer () {
+        //Timer manual para monitorar e desativar os PowerUps das caixas
+
         if ( isPowerActive ) {
             if ( powerUpTimer > 0) {
                 powerUpTimer -= Time.deltaTime;
@@ -291,6 +326,8 @@ public class WorldManager : MonoBehaviour
         }
     }
     public void ResetPowerUp () {
+        //Desativa os bonus oferecidos temporariamente
+
         Power.sprite = EmptyItem;
         PlayerScript.damage = 1;
         PlayerScript.canDamage = true;
@@ -304,6 +341,8 @@ public class WorldManager : MonoBehaviour
         PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
     }
     public void GenerateChoiceItens () {
+        //Gera os itens aleatóriamente para serem escolhidos e ativa a tela de seleção
+
         IsPaused = true;
         BackgroundMusic.volume = 0.5f;
         ChoiceItens.Clear();
@@ -327,10 +366,15 @@ public class WorldManager : MonoBehaviour
         PowerScreen.SetActive(true);
     }
     public void ConfirmItem () {
+        //Função para previnir a escolha de um item sem querer
+        //Esta função só permite o jogo continuar após clicar no "OK"  com um bonus selecionado antes
+
         if ( actualOp != -1 ) {
             ChoiceBonus(actualOp);
         }
     }
+   
+   //Funções apenas para setar o bonus escolhido em cada lvl
     public void SelectedOp1 () {
         actualOp = 0;
     }

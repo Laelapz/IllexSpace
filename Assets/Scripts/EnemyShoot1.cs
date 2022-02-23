@@ -18,6 +18,9 @@ public class EnemyShoot1 : MonoBehaviour
     }
 
     void ShootOnPlayer (Vector3 pos) {
+        //Alterna os efeitos das cores para combinar com o inimigo e gerencia o tempo de espera entre os disparos
+        //O tiro normal do jogo
+
         if ( ShootTime > ReloadShoot ){
             Quaternion rot = new Quaternion(0, 0, 5, 0);
             pos.z = -1;

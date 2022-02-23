@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BackgroundScript : MonoBehaviour
@@ -10,12 +8,7 @@ public class BackgroundScript : MonoBehaviour
 
     private float ScrollingSpeed = 2f;
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
+    //Move o background
     void Update()
     {
         float B1pos_y = BG1.transform.position.y - ScrollingSpeed * Time.deltaTime;
