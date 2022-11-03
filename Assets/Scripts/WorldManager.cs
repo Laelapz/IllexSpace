@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class WorldManager : MonoBehaviour
 {
@@ -14,9 +16,18 @@ public class WorldManager : MonoBehaviour
     public GameObject Item;
     public GameObject PauseScreen;
     public GameObject PowerScreen;
+
+    [Header("Buttons")]
+    [SerializeField] private Button upgrade1;
+    [SerializeField] private Button upgrade2;
+    [SerializeField] private Button upgrade3;
+
+    [Header("UITexts")]
     public UnityEngine.UI.Text Option1;
     public UnityEngine.UI.Text Option2;
     public UnityEngine.UI.Text Option3;
+
+    [Header("SpriteItems")]
     public Sprite Item1;
     public Sprite Item2;
     public Sprite Item3;
@@ -37,11 +48,13 @@ public class WorldManager : MonoBehaviour
     private float powerUpTimer;
     private bool isPowerActive = false;
     public bool IsPaused = false;
-    public Dictionary<string, string> PlayerData = new Dictionary<string, string>();
+
+    private float currentEnemySize = 1.5f;
 
     //Atribui os diferentes Objetos as suas variáveis
     void Start()
     {
+        
         PlayerScript = Player.GetComponent<PlayerController>();
 
         UIHolder = GameObject.Find("Canvas");
@@ -65,17 +78,22 @@ public class WorldManager : MonoBehaviour
         InstantiateEnemies(distance, rot);
         InstantiateItens(distance, rot);
         PowerUpTimer();
-        
-        if ( Input.GetKeyDown(KeyCode.P) && !PowerScreen.activeSelf) {
-            //Ao pressionar P
-            if ( IsPaused ) {
+    }
+
+    public void PauseGame()
+    {
+        if (!PowerScreen.activeSelf)
+        {
+            if (IsPaused)
+            {
                 //Se esta pausado volta as configurações ao normal
                 BackgroundMusic.volume = 1f;
                 PauseScreen.SetActive(false);
                 Time.timeScale = 1f;
-                IsPaused  = false;
+                IsPaused = false;
             }
-            else {
+            else
+            {
                 //Se não muda as configurações para parar o jogo e reduzir o volume 
                 BackgroundMusic.volume = 0.4f;
                 PauseScreen.SetActive(true);
@@ -132,7 +150,11 @@ public class WorldManager : MonoBehaviour
                 EnemyVars.xpBase = 3;
             }
             
-            int playerdamage = Player.GetComponents<PlayerController>()[0].damage;
+            int playerdamage = Player.GetComponents<PlayerController>()[0].currentPlayerDamage;
+            print(enemy.transform.localScale);
+            enemy.transform.localScale = (new Vector3(currentEnemySize, currentEnemySize, currentEnemySize));
+            print(enemy.transform.localScale);
+
             EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
             EnemyVars.playerDamage = playerdamage;
 
@@ -144,7 +166,7 @@ public class WorldManager : MonoBehaviour
         }
     }
 
-    void InstantiateItens (float distance, Quaternion rot) {
+    private void InstantiateItens (float distance, Quaternion rot) {
         //Usa a mesma lógica do spawn de inimigos
         if ( itemTime > 10 ) {
             int num = Random.Range(0, 4);
@@ -188,6 +210,7 @@ public class WorldManager : MonoBehaviour
             itemTime += Time.deltaTime;
         }
     }
+
     public void IncreasePoints (int xp) {
         //Atualiza os pontos atuais
 
@@ -224,18 +247,15 @@ public class WorldManager : MonoBehaviour
         }
         else if ( type == 1 ){
             Power.sprite = Item1;
-            float PlayerScale = -0.5f;
             powerUpTimer = 5f;
-            Vector3 actualScale = Player.transform.localScale;
-
-            if ( actualScale.x + PlayerScale > 0.1 ) {
-                Player.transform.localScale = new Vector3(actualScale.x + PlayerScale, actualScale.y + PlayerScale, actualScale.z + PlayerScale);
-                isPowerActive = true;
-            }
+            float actualScale = PlayerScript.currentPlayerSize;
+            Player.transform.localScale = new Vector3(actualScale - 0.2f, actualScale - 0.2f, actualScale - 0.2f);
+            isPowerActive = true;
+        
         }
         else if ( type == 2 ) {
             Power.sprite = Item2;
-            PlayerScript.canDamage = false;
+            PlayerScript.AddInvulnerabilityTime(5);
             PlayerScript.StartShield();
             powerUpTimer = 5f;
             isPowerActive = true;
@@ -252,7 +272,7 @@ public class WorldManager : MonoBehaviour
             Power.sprite = EmptyItem;
         }
 
-    
+        PlayerScript.AddInvulnerabilityTime(PlayerScript.currentInvulnerabilityTime);
     }
 
     public void ResetPlayerStats () {
@@ -260,13 +280,10 @@ public class WorldManager : MonoBehaviour
         //Diferente do ResetPowerUp esta função muda o dicionário que monitora os efeitos dos itens escolhidos
         //Podendo assim acumular bonus ao longo de uma jogatina, mas perdendo todos ao morrer
 
-        PlayerData["BulletSize"] = "0.0";
-        PlayerData["PlayerSize"] = "0.0";
-        PlayerData["BulletSpeed"] = "10";
+        PlayerScript.ResetStatus();
 
-        PlayerScript.BulletSize = 0.02f;
-        PlayerScript.speed = 5;
-        Player.transform.localScale = new Vector3(1, 1, 1);
+        Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
+        currentEnemySize = 1.5f;
         PlayerScript.canDamage = true;
         UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
         Text.text = "0\n\n"+maxScore;
@@ -275,6 +292,7 @@ public class WorldManager : MonoBehaviour
         
         ResetPowerUp();
     }
+
     public void ChoiceBonus (int numOption) {
         //Desativa a tela de escolha dos itens e aplica o bonus escolhido
 
@@ -286,31 +304,37 @@ public class WorldManager : MonoBehaviour
         Time.timeScale = 1f;
 
         if ( op == "bullet size" ) {
-            PlayerData["BulletSize"] = (float.Parse(PlayerData["BulletSize"]) + 0.01).ToString();
-            PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
+            PlayerScript.currentBulletSize += 0.01f;
         }
 
         else if ( op == "player size" ) {
-            PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) - 0.01).ToString();
-            float PlayerScale = float.Parse(PlayerData["PlayerSize"]);
-            Vector3 actualScale = Player.transform.localScale;
-
-            if ( Player.transform.localScale.x + PlayerScale > 0.1 ) {
-                Player.transform.localScale = new Vector3(1 + PlayerScale, 1 + PlayerScale, 1 + PlayerScale);
-            }else{
-                PlayerData["PlayerSize"] = (float.Parse(PlayerData["PlayerSize"]) + 0.01).ToString();
-            }
+            PlayerScript.currentPlayerSize -= 0.01f;
+            Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
         }
 
-        else if ( op == "player speed" ) {
-            PlayerScript.speed += 1;
+        else if (op == "enemy size")
+        {
+            currentEnemySize += 0.1f;
         }
 
-        else if ( op == "bullet speed" ) {
-            PlayerScript.BulletSpeed += 0.1f;
+        else if ( op == "player speed" )
+        {
+            PlayerScript.currentPlayerSpeed += 1;
         }
 
+        else if ( op == "bullet speed" )
+        {
+            PlayerScript.currentBulletSpeed += 0.1f;
+        }
+
+        else if (op == "invulnerability time")
+        {
+            PlayerScript.currentInvulnerabilityTime += 0.2f;
+        }
+
+        PlayerScript.AddInvulnerabilityTime(PlayerScript.currentInvulnerabilityTime);
     }
+
     public void PowerUpTimer () {
         //Timer manual para monitorar e desativar os PowerUps das caixas
 
@@ -325,21 +349,20 @@ public class WorldManager : MonoBehaviour
             }
         }
     }
+
     public void ResetPowerUp () {
         //Desativa os bonus oferecidos temporariamente
 
         Power.sprite = EmptyItem;
-        PlayerScript.damage = 1;
+        //PlayerScript.ResetStatus
         PlayerScript.canDamage = true;
+        PlayerScript.Flash(0);
         PlayerScript.ShootPower = false;
         PlayerScript.StopShield();
 
-        float scale = float.Parse(PlayerData["PlayerSize"]);
-        Player.transform.localScale = new Vector3(1+scale, 1+scale, 1+scale);
-
-        scale = float.Parse(PlayerData["BulletSize"]);
-        PlayerScript.BulletSize = float.Parse(PlayerData["BulletSize"]);
+        Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
     }
+
     public void GenerateChoiceItens () {
         //Gera os itens aleatóriamente para serem escolhidos e ativa a tela de seleção
 
@@ -347,12 +370,14 @@ public class WorldManager : MonoBehaviour
         BackgroundMusic.volume = 0.5f;
         ChoiceItens.Clear();
         List <string> options = new List<string>();
+        if(PlayerScript.currentInvulnerabilityTime < 10)    options.Add("invulnerability time");
+        if(PlayerScript.currentPlayerSize > 0.3f) options.Add("player size");
+        if (currentEnemySize < 3f) options.Add("enemy size");
+        
         options.Add("bullet speed");
         options.Add("player speed");
         options.Add("bullet size");
-        options.Add("player size");
-        options.Add("enemy size");
-        
+
         for (int i = 0; i < 3; i++){
             int num = Random.Range(i, options.Count);
             ChoiceItens.Add(options[num]);
@@ -365,6 +390,7 @@ public class WorldManager : MonoBehaviour
 
         PowerScreen.SetActive(true);
     }
+
     public void ConfirmItem () {
         //Função para previnir a escolha de um item sem querer
         //Esta função só permite o jogo continuar após clicar no "OK"  com um bonus selecionado antes
@@ -377,11 +403,16 @@ public class WorldManager : MonoBehaviour
    //Funções apenas para setar o bonus escolhido em cada lvl
     public void SelectedOp1 () {
         actualOp = 0;
+        upgrade1.Select();
     }
+
     public void SelectedOp2 () {
         actualOp = 1;
+        upgrade2.Select();
     }
+
     public void SelectedOp3 () {
         actualOp = 2;
+        upgrade3.Select();
     }
 }

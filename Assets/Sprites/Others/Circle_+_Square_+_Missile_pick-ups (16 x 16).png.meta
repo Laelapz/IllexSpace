@@ -33,6 +33,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -172,6 +173,10 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Circle_+_Square_+_Missile_pick-ups (16 x 16)_1: 595727307171276423
+      Circle_+_Square_+_Missile_pick-ups (16 x 16)_2: -1543314564218839039
+      Circle_+_Square_+_Missile_pick-ups (16 x 16)_0: -8055712855172713862
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

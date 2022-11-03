@@ -35,8 +35,10 @@ public class EnemyScript : MonoBehaviour
             EnemyEffects.Play();
             life -= damage;
 
-            if ( life <= 0 ) {
-                DestroyEnemy(new Vector3(0, -1000, 0));
+            if ( life <= 0 )
+            {
+                worldManager.IncreasePoints(xpBase);
+                Destroy(gameObject);
             }
         }
     }

@@ -1,7 +1,16 @@
 using UnityEngine;
+using System.Threading.Tasks;
+using UnityEngine.InputSystem;
+using System.Collections;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
+    public PlayerInput playerInput;
+    public Actions actions;
+    private Vector2 inputVector = Vector2.zero;
+
+    [SerializeField] private Material _myMaterial;
 
     public AudioSource PlayerEffects;
     public AudioClip laserSound;
@@ -10,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D Player;
     public WorldManager worldManager;
     public Animator animator;
+    public Renderer rendererColor;
     public Animator boostAnimator;
     public GameObject Shoot;
     public GameObject Boost;
@@ -17,39 +27,87 @@ public class PlayerController : MonoBehaviour
     public Transform ShieldTranform;
 
     public Sprite ShildSprite;
-    public float speed;
-    public int damage = 1;
-    public float BulletSize = 0.01f;
 
-    public float BulletSpeed = 0f;
+    [Header("Player Status")]
+    public float currentPlayerSpeed = 5;
+    private float playerSpeed = 5;
+    public int currentPlayerDamage = 1;
+    private int playerDamage = 1;
+    public float currentPlayerSize = 1f;
+    private float playerSize = 1f;
+    public float currentShootCooldown = 1f;
+    private float invulnerabilityTime = 1f;
+    public float currentInvulnerabilityTime = 1f;
+
+    [Header("Bullet Status")]
+    public float currentBulletSize = 0.02f;
+    private float bulletSize = 0.02f;
+    private float shootCooldown = 1f;
+    public float currentBulletSpeed = 1f;
+    private float bulletSpeed = 1f;
+    public float invulnerabilityCounter = 0f;
+
+    [Header("Bools")]
     public bool canDamage = true;
     public bool canMove = true;
+    public bool canShoot = true;
     public bool isDead = false;
     public bool ShootPower = false;
+    
     private float PlayerBoundary = 0.5f;
     private float explosionTimer = 0f;
 
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+
+        actions = new Actions();
+        actions.Enable();
+        
+    }
+
     void Update()
     {
-        Vector3 pos;
-        
+
         if ( canMove && !worldManager.IsPaused ){
             //Caso o player possa se movimentar e o jogo não esteja pausado
             //Recebe os Inputs de movimento tiro e também limita o mesmo as dimensões da tela
 
-            pos = transform.position;
-            transform.rotation = new Quaternion(0, 0, 0, 0);
-            pos.y += Input.GetAxis("Vertical") * speed * Time.deltaTime;
-            pos.x += Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-            PlayerShoot(pos, transform.rotation.z);
-            pos = ScreenBoundary(pos);
-            transform.position = pos;
+            inputVector = actions.Ship.Move.ReadValue<Vector2>();
+            Move(inputVector);
+            PlayerShoot(transform.position, transform.rotation.z);
+            if (invulnerabilityCounter > 0)
+            {
+                canDamage = false;
+                Flash(1);
+            }
+            else
+            {
+                canDamage = true;
+                Flash(0);
+            }
+            
+            invulnerabilityCounter -= Time.deltaTime;
         }
 
         Explosion();
-        UpdateAnimation();
+        UpdateAnimation(inputVector);
+    }
 
-        
+    private void Move(Vector2 value)
+    {
+        if (!canMove || worldManager.IsPaused) return;
+        print("Movendo");
+
+        Vector3 pos;
+
+        pos = transform.position;
+        transform.rotation = new Quaternion(0, 0, 0, 0);
+        pos.y += value.y * currentPlayerSpeed * Time.deltaTime;
+        pos.x += value.x * currentPlayerSpeed * Time.deltaTime;
+        pos = ScreenBoundary(pos);
+        transform.position = pos;
     }
 
     public void StartShield () {
@@ -62,26 +120,37 @@ public class PlayerController : MonoBehaviour
         //Esconde o escudo ao acabar o tempo de efeito
         ShieldTranform.localScale = new Vector3(0, 0, 0);
     }
-    void UpdateAnimation () {
+    void UpdateAnimation (Vector2 value) {
         //Gerencia todos os booleanos do animator para reproduzir as animações
 
-        if ( Input.GetAxis("Horizontal") > 0 ){
+        if (value.x > 0)
+        {
             Boost.transform.localScale = new Vector3(2, 3, 1);
             animator.SetBool("Right", true);
             animator.SetBool("Middle", false);
         }
-        else if( Input.GetAxis("Horizontal") < 0 ){
+        else if (value.x < 0)
+        {
             Boost.transform.localScale = new Vector3(2, 3, 1);
             animator.SetBool("Left", true);
             animator.SetBool("Middle", false);
         }
-        else{
+        else
+        {
             Boost.transform.localScale = new Vector3(3, 3, 1);
             animator.SetBool("Right", false);
             animator.SetBool("Left", false);
             animator.SetBool("Middle", true);
         }
     }
+
+    public void AddInvulnerabilityTime(float time)
+    {
+        if (invulnerabilityCounter < 0) invulnerabilityCounter = 0;
+
+        invulnerabilityCounter += time;
+    }
+
     void OnTriggerEnter2D (Collider2D Obj) {
         //Caso o player colida com algo que não é um power up e possa ser danificado
 
@@ -115,9 +184,16 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    void Dead () {
+    private void Dead () {
         transform.position = new Vector3(0, -4, -2);
         worldManager.ResetPlayerStats();
+
+        AddInvulnerabilityTime(currentInvulnerabilityTime);
+    }
+
+    public void Flash(float boolValue)
+    {
+        _myMaterial.SetFloat("_WhiteFlash", boolValue);
     }
 
     void PlayerShoot (Vector3 pos, float z_rot) {
@@ -125,7 +201,7 @@ public class PlayerController : MonoBehaviour
         //E se ele tiver com o coletável de tiro instancia vários ao mesmo tempo 
 
 
-        if ( Input.GetKeyDown(KeyCode.Mouse0 ) ) {
+        if ( canShoot ) {
             PlayerEffects.clip = laserSound;
             PlayerEffects.volume = 0.7f;
             PlayerEffects.Play();
@@ -133,21 +209,41 @@ public class PlayerController : MonoBehaviour
             if (ShootPower) {
                 for(int begin = -15; begin < 15; begin += 5) {
                     var shoot = Instantiate(Shoot, pos, rot);
-                    shoot.GetComponent<PlayerShootScript>().speed = 1+BulletSpeed;
+                    shoot.GetComponent<PlayerShootScript>().speed = currentBulletSpeed;
                     shoot.transform.Rotate(new Vector3(0, 0, begin));
-                    shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
+                    shoot.transform.localScale = new Vector3(currentBulletSize, currentBulletSize, currentBulletSize);
                 }
             }
             else {
                 var shoot = Instantiate(Shoot, pos, rot);
-                shoot.GetComponent<PlayerShootScript>().speed = 1+BulletSpeed;
-                shoot.transform.localScale = new Vector3(0.01f +BulletSize, 0.01f+BulletSize, 0.01f+BulletSize);
-
+                shoot.GetComponent<PlayerShootScript>().speed = currentBulletSpeed;
+                shoot.transform.localScale = new Vector3(currentBulletSize, currentBulletSize, currentBulletSize);
             }
-        
+
+            StartCoroutine(ShootCooldown());
+
         }
 
     }
+
+    public void ResetStatus()
+    {
+        currentPlayerSpeed = playerSpeed;
+        currentPlayerDamage = playerDamage;
+        currentBulletSize = bulletSize;
+        currentShootCooldown = shootCooldown;
+        currentInvulnerabilityTime = invulnerabilityTime;
+        currentBulletSpeed = bulletSpeed;
+        currentPlayerSize = playerSize;
+    }
+
+    private IEnumerator ShootCooldown()
+    {
+        canShoot = false;
+        yield return new WaitForSeconds(currentShootCooldown);
+        canShoot = true;
+    }
+    
     Vector3 ScreenBoundary (Vector3 pos) {
 
         //Se a posição do player for maior ou menor que os valores limites da camera força a posição a se encaixar
@@ -157,7 +253,6 @@ public class PlayerController : MonoBehaviour
         else if ( pos.y - PlayerBoundary < -Camera.main.orthographicSize ) {
             pos.y = -Camera.main.orthographicSize + PlayerBoundary;
         }
-
 
         //Encontra a proporção da tela e usa a mesma lógica dos limites de camera
         float ScreenRatio = (float)Screen.width / (float)Screen.height;

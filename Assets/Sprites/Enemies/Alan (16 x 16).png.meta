@@ -42,6 +42,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -244,6 +245,13 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Alan (16 x 16)_1: -1833979675767520532
+      Alan (16 x 16)_3: -7136706317182196826
+      Alan (16 x 16)_2: 2549284098650169715
+      Alan (16 x 16)_0: 4592531459908487704
+      Alan (16 x 16)_4: 6909941266743720162
+      Alan (16 x 16)_5: 1159993298986314896
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

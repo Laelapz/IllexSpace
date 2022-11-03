@@ -39,6 +39,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -220,6 +221,12 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Lips (16 x 16)_2: 1073727993360252447
+      Lips (16 x 16)_4: -6673398971326381106
+      Lips (16 x 16)_0: -2073968935368736419
+      Lips (16 x 16)_1: -5994119870007553892
+      Lips (16 x 16)_3: 8339113566332980251
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

@@ -20,7 +20,7 @@ public class PlayerShootScript : MonoBehaviour
 
     void OnTriggerEnter2D () {
         //Ao colidir com alguém simula como se a bala tivesse saido da tela
-        DestroyShoot(new Vector3(0, 1000, 0));
+        Destroy(gameObject);
     }
     void DestroyShoot (Vector3 pos) {
         //A função é chamada a todo frame caso a bala esteja no final da tela ela é destruida

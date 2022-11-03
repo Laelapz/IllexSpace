@@ -36,6 +36,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -196,6 +197,11 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Player_charged_beam (16 x 16)_1: -9107847776280937511
+      Player_charged_beam (16 x 16)_3: -3963024405580626523
+      Player_charged_beam (16 x 16)_2: -6000471924754851970
+      Player_charged_beam (16 x 16)_0: -8176307969900759673
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
