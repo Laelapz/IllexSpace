@@ -3,8 +3,8 @@ using UnityEngine;
 public class EnemyShoot2 : MonoBehaviour
 {
     public GameObject ShootEnemy;
-    public float ReloadShoot = 3f;
     private float ShootTime = 0f;
+    public float ReloadShoot = 3f;
 
     void FixedUpdate() {
         ShootOnPlayer(transform.position);
@@ -21,10 +21,11 @@ public class EnemyShoot2 : MonoBehaviour
                 Quaternion rot = new Quaternion(0, 0, 5, 0);
                 pos.z = -1;
                 var shoot = Instantiate(ShootEnemy, pos, rot);
-                shoot.GetComponent<PlayerShootScript>().shootColor.color = new Color(1, 1, 0, 1);
-                shoot.GetComponent<PlayerShootScript>().shootParticleColor.startColor = new Color(1, 1, 0, 1);
+                var playerShootScript = shoot.GetComponent<PlayerShootScript>();
+                playerShootScript.timeToDestroy = 20f;
+                playerShootScript.shootColor.color = new Color(1, 1, 0, 1);
                 shoot.transform.Rotate(new Vector3(0, 0, rot_z));
-                shoot.GetComponent<PlayerShootScript>().speed = 2;
+                playerShootScript.speed = 2;
             }
             
             ShootTime = 0f;

@@ -1,82 +1,97 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class WorldManager : MonoBehaviour
 {
+    [SerializeField] private Slider XpBar;
+    private PlayerController PlayerScript;
+    private List<string> ChoiceItens = new List<string>();
+    private Camera mainCamera;
+    
     public AudioSource BackgroundMusic;
+
+    [Header("Enemy Prefabs")]
     public GameObject Enemy1;
     public GameObject Enemy2;
     public GameObject Enemy3;
     public GameObject Player;
 
-    private PlayerController PlayerScript;
+
+    [Header("UI Objects")]
     public GameObject Item;
     public GameObject PauseScreen;
     public GameObject PowerScreen;
+    public GameObject UIHolder;
+    public Image PowerHolder;
+    public Image Power;
 
     [Header("Buttons")]
     [SerializeField] private Button upgrade1;
     [SerializeField] private Button upgrade2;
     [SerializeField] private Button upgrade3;
 
-    [Header("UITexts")]
-    public UnityEngine.UI.Text Option1;
-    public UnityEngine.UI.Text Option2;
-    public UnityEngine.UI.Text Option3;
+    [Header("UI Texts")]
+    public Text Option1;
+    public Text Option2;
+    public Text Option3;
 
-    [Header("SpriteItems")]
+    [Header("Sprite Items")]
     public Sprite Item1;
     public Sprite Item2;
     public Sprite Item3;
     public Sprite Item4;
     public Sprite EmptyItem;
 
-    public GameObject UIHolder;
-    UnityEngine.UI.Image PowerHolder;
-    UnityEngine.UI.Image Power;
 
+    
     private int score = 0;
     private int maxScore = 0;
     private int actualOp = -1;
     private float nextLvl = 5f;
     private float actualTime = 0f;
     private float itemTime = 0f;
-    private List<string> ChoiceItens = new List<string>();
     private float powerUpTimer;
-    private bool isPowerActive = false;
-    public bool IsPaused = false;
-
     private float currentEnemySize = 1.5f;
+    private float ScreenRatio;
+    private float ScreenOrtho;
+    private float distance;
 
-    //Atribui os diferentes Objetos as suas variáveis
+    [Header("Bools")]
+    public bool IsPaused = false;
+    private bool isPowerActive = false;
+    private Quaternion rot;
+
     void Start()
     {
-        
+        mainCamera = Camera.main;
+
+        ScreenRatio = (float)Screen.width / (float)Screen.height;
+        ScreenOrtho = (mainCamera.orthographicSize * ScreenRatio) - 1;
+        distance = mainCamera.orthographicSize + 1;
+        rot = new Quaternion(0, 0, 0, 0);
+
         PlayerScript = Player.GetComponent<PlayerController>();
 
         UIHolder = GameObject.Find("Canvas");
-        PowerHolder = UIHolder.GetComponentInChildren<UnityEngine.UI.Image>();
-        Power = PowerHolder.GetComponentInChildren<UnityEngine.UI.Image>();
 
         Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
         Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
         Item = (GameObject)Resources.Load("Prefabs/PowerUp", typeof(GameObject));
 
+
+        XpBar.value = score;
+        XpBar.maxValue = nextLvl;
+
         ResetPlayerStats();
         
     }
 
-    // O Update tem a função de cuidar dos inputs do player e chamar as funções que vão cuidar de partes específicas do jogo
-    //Ex: movimentação | Pausa | Intanciar Prefabs
     void Update()
     {
-        float distance = Camera.main.orthographicSize + 1;
-        var rot = new Quaternion(0, 0, 0, 0);
-        InstantiateEnemies(distance, rot);
-        InstantiateItens(distance, rot);
+        InstantiateEnemies();
+        InstantiateItens();
         PowerUpTimer();
     }
 
@@ -86,7 +101,6 @@ public class WorldManager : MonoBehaviour
         {
             if (IsPaused)
             {
-                //Se esta pausado volta as configurações ao normal
                 BackgroundMusic.volume = 1f;
                 PauseScreen.SetActive(false);
                 Time.timeScale = 1f;
@@ -94,7 +108,6 @@ public class WorldManager : MonoBehaviour
             }
             else
             {
-                //Se não muda as configurações para parar o jogo e reduzir o volume 
                 BackgroundMusic.volume = 0.4f;
                 PauseScreen.SetActive(true);
                 Time.timeScale = 0f;
@@ -104,7 +117,6 @@ public class WorldManager : MonoBehaviour
     }
 
     public void UnpauseGame () {
-        //Função para despausar através do Resume
         BackgroundMusic.volume = 1f;
         PauseScreen.SetActive(false);
         Time.timeScale = 1f;
@@ -115,22 +127,16 @@ public class WorldManager : MonoBehaviour
         IsPaused = false;
         SceneManager.LoadScene("Assets/Scenes/Menu.unity");
     }
-    void InstantiateEnemies (float distance, Quaternion rot) {
-        //Função usa como timer o tempo entre cada frame para spawnar os prefabs
+
+    void InstantiateEnemies () {
         if ( actualTime > 2) {
-            //Caso já tenha passado o tempo necessário
             
-            //Encontra as proporções da tela para poder definir o range do spawn dos inimigos em relação ao orthographicSize
-            float ScreenRatio = (float)Screen.width / (float)Screen.height;
-            float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
 
             int num = Random.Range(0, 3 );
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
-
             GameObject enemy = null;
             EnemyScript EnemyVars = null;
 
-            //Setando as variáveis para cada tipo de inimigo
             if ( num == 0 ){
                 enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -2), rot);
                 EnemyVars = enemy.GetComponent<EnemyScript>();
@@ -151,33 +157,26 @@ public class WorldManager : MonoBehaviour
             }
             
             int playerdamage = Player.GetComponents<PlayerController>()[0].currentPlayerDamage;
-            print(enemy.transform.localScale);
             enemy.transform.localScale = (new Vector3(currentEnemySize, currentEnemySize, currentEnemySize));
-            print(enemy.transform.localScale);
-
             EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
             EnemyVars.playerDamage = playerdamage;
 
             actualTime = 0f;
         }
         else {
-            //Se não adiciona o tempo passado desde o último frame
             actualTime += Time.deltaTime;
         }
     }
 
-    private void InstantiateItens (float distance, Quaternion rot) {
-        //Usa a mesma lógica do spawn de inimigos
+    private void InstantiateItens () {
         if ( itemTime > 10 ) {
             int num = Random.Range(0, 4);
 
             float ScreenRatio = (float)Screen.width / (float)Screen.height;
-            float ScreenOrtho = (Camera.main.orthographicSize * ScreenRatio)-1;  
+            float ScreenOrtho = (mainCamera.orthographicSize * ScreenRatio)-1;  
 
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
             GameObject item = null;
-
-            //Todos os itens são o mesmo prefab que apenas carregam o seu efeito(type) e o sprite
 
             if (num == 0) {
                 item = Instantiate(Item, new Vector3(pos_x, distance, -1), rot);
@@ -212,32 +211,28 @@ public class WorldManager : MonoBehaviour
     }
 
     public void IncreasePoints (int xp) {
-        //Atualiza os pontos atuais
 
-        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+        Text Text = UIHolder.GetComponentInChildren<Text>();
 
-        //Os pontos também gerenciam um sistema de xp que permite a escolha de bonus conforme progride no game
         score += xp;
 
         if ( ((int)score) > ((int)maxScore) ) {
             maxScore = score;
         }
         Text.text = score.ToString() + "\n\n"+maxScore.ToString();
-        
-        //Caso seu score atual seja maior que o limite necessario para passar de lvl
-        //É liberado o acesso a tela de escolha de item e a quantia necessária para upar de nível é dobrada
+
         if ( score >= nextLvl ) {
             Time.timeScale = 0f;
             nextLvl *= 2f;
+            XpBar.maxValue = nextLvl;
             GenerateChoiceItens();
         }
+
+        XpBar.value = score;
     }
 
     public void ActivatePower (int type) {
-        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
-
-        //Todos os itens brincam com as váriáveis do jogo sendo possível diminuir o tamanho do player | aumentar os inimigos
-        //Ficar mais rápido | ter balas maiores, entre outros
+        Text Text = UIHolder.GetComponentInChildren<Text>();
 
         if (type == 0) {
             IncreasePoints(10);
@@ -276,25 +271,25 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ResetPlayerStats () {
-        //Função para resetar os status totalmente em caso de morte
-        //Diferente do ResetPowerUp esta função muda o dicionário que monitora os efeitos dos itens escolhidos
-        //Podendo assim acumular bonus ao longo de uma jogatina, mas perdendo todos ao morrer
 
         PlayerScript.ResetStatus();
 
         Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
         currentEnemySize = 1.5f;
         PlayerScript.canDamage = true;
-        UnityEngine.UI.Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
+        Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
         Text.text = "0\n\n"+maxScore;
         score = 0;
         nextLvl = 5f;
-        
+
+
+        XpBar.value = score;
+        XpBar.maxValue = nextLvl;
+
         ResetPowerUp();
     }
 
     public void ChoiceBonus (int numOption) {
-        //Desativa a tela de escolha dos itens e aplica o bonus escolhido
 
         IsPaused = false;
         BackgroundMusic.volume = 1f;
@@ -308,7 +303,7 @@ public class WorldManager : MonoBehaviour
         }
 
         else if ( op == "player size" ) {
-            PlayerScript.currentPlayerSize -= 0.01f;
+            PlayerScript.currentPlayerSize -= 0.1f;
             Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
         }
 
@@ -320,6 +315,11 @@ public class WorldManager : MonoBehaviour
         else if ( op == "player speed" )
         {
             PlayerScript.currentPlayerSpeed += 1;
+        }
+
+        else if (op == "reaload speed")
+        {
+            PlayerScript.currentShootCooldown -= 0.1f;
         }
 
         else if ( op == "bullet speed" )
@@ -336,7 +336,6 @@ public class WorldManager : MonoBehaviour
     }
 
     public void PowerUpTimer () {
-        //Timer manual para monitorar e desativar os PowerUps das caixas
 
         if ( isPowerActive ) {
             if ( powerUpTimer > 0) {
@@ -351,10 +350,8 @@ public class WorldManager : MonoBehaviour
     }
 
     public void ResetPowerUp () {
-        //Desativa os bonus oferecidos temporariamente
 
         Power.sprite = EmptyItem;
-        //PlayerScript.ResetStatus
         PlayerScript.canDamage = true;
         PlayerScript.Flash(0);
         PlayerScript.ShootPower = false;
@@ -364,17 +361,17 @@ public class WorldManager : MonoBehaviour
     }
 
     public void GenerateChoiceItens () {
-        //Gera os itens aleatóriamente para serem escolhidos e ativa a tela de seleção
 
         IsPaused = true;
         BackgroundMusic.volume = 0.5f;
         ChoiceItens.Clear();
         List <string> options = new List<string>();
-        if(PlayerScript.currentInvulnerabilityTime < 10)    options.Add("invulnerability time");
+        if(PlayerScript.currentInvulnerabilityTime < 10) options.Add("invulnerability time");
         if(PlayerScript.currentPlayerSize > 0.3f) options.Add("player size");
         if (currentEnemySize < 3f) options.Add("enemy size");
         
         options.Add("bullet speed");
+        options.Add("reaload speed");
         options.Add("player speed");
         options.Add("bullet size");
 
@@ -399,8 +396,7 @@ public class WorldManager : MonoBehaviour
             ChoiceBonus(actualOp);
         }
     }
-   
-   //Funções apenas para setar o bonus escolhido em cada lvl
+ 
     public void SelectedOp1 () {
         actualOp = 0;
         upgrade1.Select();

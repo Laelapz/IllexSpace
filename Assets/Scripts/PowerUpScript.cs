@@ -19,12 +19,8 @@ public class PowerUpScript : MonoBehaviour
     }
 
     void OnTriggerEnter2D (Collider2D collider) {
-        //Ao colidir com algo chama a função do world manager que ativa o coletável
-        //As colisões foram feitas com layers então garante que a caixa só pode colidir com o player e/ou suas balas
-        if ( collider.tag != "MyBullet" ) {
-            worldManager.ActivatePower(type);
-            Destroy(gameObject);
-        }
+        worldManager.ActivatePower(type);
+        Destroy(gameObject);
     }
 
     public void SetSprite(Sprite sprite) {

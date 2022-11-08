@@ -1,32 +1,44 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerShootScript : MonoBehaviour
 {
-
+    public float timeToDestroy = 1f;
     public float speed = 1f;
     public string type = "player";
     public SpriteRenderer shootColor;
     public ParticleSystem shootParticleColor;
+
+    public UnityAction<Vector3, GameObject, Transform> callback;
     public int dir = 1;
+
+    private void Start()
+    {
+        var particleSystem = shootParticleColor.main;
+
+        if(shootColor) particleSystem.startColor = shootColor.color;
+        StartCoroutine(callbackBeforeDestroy());
+        Destroy(gameObject, timeToDestroy);
+    }
 
     void Update() {
         Vector3 pos = transform.position;
         Vector3 velocity = new Vector3 ( 0, speed * Time.deltaTime );
         pos += transform.rotation * velocity;
         transform.position = pos;
-
-        DestroyShoot(pos);
     }
 
-    void OnTriggerEnter2D () {
-        //Ao colidir com alguém simula como se a bala tivesse saido da tela
+    void OnTriggerEnter2D ()
+    {
+        if (callback != null) callback.Invoke(transform.position, gameObject, transform.parent);
         Destroy(gameObject);
     }
-    void DestroyShoot (Vector3 pos) {
-        //A função é chamada a todo frame caso a bala esteja no final da tela ela é destruida
 
-        if( pos.y > Camera.main.orthographicSize  || pos.y < -Camera.main.orthographicSize) {
-            Destroy(gameObject);
-        }
+    IEnumerator callbackBeforeDestroy()
+    {
+        yield return new WaitForSeconds(timeToDestroy-0.1f);
+        if (callback != null) callback.Invoke(transform.position, gameObject, transform.parent);
+
     }
 }

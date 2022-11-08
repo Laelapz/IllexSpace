@@ -36,13 +36,13 @@ public class PlayerController : MonoBehaviour
     public float currentPlayerSize = 1f;
     private float playerSize = 1f;
     public float currentShootCooldown = 1f;
+    private float shootCooldown = 1f;
     private float invulnerabilityTime = 1f;
     public float currentInvulnerabilityTime = 1f;
 
     [Header("Bullet Status")]
     public float currentBulletSize = 0.02f;
     private float bulletSize = 0.02f;
-    private float shootCooldown = 1f;
     public float currentBulletSpeed = 1f;
     private float bulletSpeed = 1f;
     public float invulnerabilityCounter = 0f;
@@ -98,7 +98,6 @@ public class PlayerController : MonoBehaviour
     private void Move(Vector2 value)
     {
         if (!canMove || worldManager.IsPaused) return;
-        print("Movendo");
 
         Vector3 pos;
 
