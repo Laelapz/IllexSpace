@@ -244,7 +244,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 16403910}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 302.1474, y: 162.18942, z: -103.514626}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1064,15 +1064,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 049fcc58bf5acbb408165fb23099c71d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  XpBar: {fileID: 636101561}
   BackgroundMusic: {fileID: 16403911}
-  Enemy1: {fileID: 842868269004555885, guid: 9641549eeba805644af0da2a0140f7db, type: 3}
-  Enemy2: {fileID: 842868269004555885, guid: 0fda8f33bb9ad1e47a4b242b0d4c75de, type: 3}
-  Enemy3: {fileID: 842868269004555885, guid: 85acee1dce581714880b457eb1f653c9, type: 3}
+  Enemies:
+  - {fileID: 842868269004555885, guid: 9641549eeba805644af0da2a0140f7db, type: 3}
+  - {fileID: 842868269004555885, guid: 0fda8f33bb9ad1e47a4b242b0d4c75de, type: 3}
+  - {fileID: 842868269004555885, guid: 85acee1dce581714880b457eb1f653c9, type: 3}
+  - {fileID: 842868269004555885, guid: 1ac5d8e8627444f46afa17779b45aa32, type: 3}
   Player: {fileID: 202491677}
   Item: {fileID: 0}
   PauseScreen: {fileID: 1843558244}
   PowerScreen: {fileID: 1469678742}
-  XpBar: {fileID: 636101561}
+  UIHolder: {fileID: 0}
+  PowerHolder: {fileID: 1769202299}
+  Power: {fileID: 147264007}
   upgrade1: {fileID: 1042867107}
   upgrade2: {fileID: 1005110801}
   upgrade3: {fileID: 1920593005}
@@ -1084,9 +1089,6 @@ MonoBehaviour:
   Item3: {fileID: -1543314564218839039, guid: 160b8f4c8935b3d4ab7f4c304a9d5145, type: 3}
   Item4: {fileID: -6441540198209878767, guid: 0c481921b6cb0694e80fcc9dfbabbdca, type: 3}
   EmptyItem: {fileID: 21300000, guid: 4bed6dd2a9b594d40867ef60a75a9f69, type: 3}
-  UIHolder: {fileID: 0}
-  PowerHolder: {fileID: 1769202299}
-  Power: {fileID: 147264007}
   IsPaused: 0
 --- !u!4 &759634962
 Transform:

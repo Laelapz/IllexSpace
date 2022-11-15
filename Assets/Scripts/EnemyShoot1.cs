@@ -6,6 +6,7 @@ public class EnemyShoot1 : MonoBehaviour
 
     private float ShootTime = 0f;
     public float ReloadShoot = 1.5f;
+    public Color shootColor;
     void Start()
     {
         
@@ -27,7 +28,7 @@ public class EnemyShoot1 : MonoBehaviour
             var shoot = Instantiate(ShootEnemy, pos, rot);
             var playerShootScript = shoot.GetComponent<PlayerShootScript>();
             playerShootScript.timeToDestroy = 20f;
-            playerShootScript.shootColor.color = new Color(0, 1, 0, 1);
+            playerShootScript.shootColor.color = shootColor;
             ShootTime = 0f;
             playerShootScript.speed = 2;
         }

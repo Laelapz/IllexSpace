@@ -13,9 +13,7 @@ public class WorldManager : MonoBehaviour
     public AudioSource BackgroundMusic;
 
     [Header("Enemy Prefabs")]
-    public GameObject Enemy1;
-    public GameObject Enemy2;
-    public GameObject Enemy3;
+    public GameObject[] Enemies;
     public GameObject Player;
 
 
@@ -49,7 +47,7 @@ public class WorldManager : MonoBehaviour
     private int score = 0;
     private int maxScore = 0;
     private int actualOp = -1;
-    private float nextLvl = 5f;
+    private int nextLvl = 50;
     private float actualTime = 0f;
     private float itemTime = 0f;
     private float powerUpTimer;
@@ -57,6 +55,10 @@ public class WorldManager : MonoBehaviour
     private float ScreenRatio;
     private float ScreenOrtho;
     private float distance;
+
+    private float enemySpawnTime = 2f;
+
+    private List<string> options;
 
     [Header("Bools")]
     public bool IsPaused = false;
@@ -66,6 +68,7 @@ public class WorldManager : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
+        options = new List<string>();
 
         ScreenRatio = (float)Screen.width / (float)Screen.height;
         ScreenOrtho = (mainCamera.orthographicSize * ScreenRatio) - 1;
@@ -75,9 +78,6 @@ public class WorldManager : MonoBehaviour
         PlayerScript = Player.GetComponent<PlayerController>();
 
         UIHolder = GameObject.Find("Canvas");
-
-        Enemy1 = (GameObject)Resources.Load("Prefabs/Enemy1", typeof(GameObject));
-        Enemy2 = (GameObject)Resources.Load("Prefabs/Enemy2", typeof(GameObject));
         Item = (GameObject)Resources.Load("Prefabs/PowerUp", typeof(GameObject));
 
 
@@ -129,33 +129,43 @@ public class WorldManager : MonoBehaviour
     }
 
     void InstantiateEnemies () {
-        if ( actualTime > 2) {
+        if ( actualTime > enemySpawnTime) {
             
 
-            int num = Random.Range(0, 3 );
+            int num = Random.Range(0, Enemies.Length );
             int pos_x = Random.Range(((int)-ScreenOrtho), ((int)ScreenOrtho));
             GameObject enemy = null;
             EnemyScript EnemyVars = null;
 
             if ( num == 0 ){
-                enemy = Instantiate(Enemy1, new Vector3(pos_x, distance, -2), rot);
+                enemy = Instantiate(Enemies[0], new Vector3(pos_x, distance, -2), rot);
                 EnemyVars = enemy.GetComponent<EnemyScript>();
                 EnemyVars.life = 1;
                 EnemyVars.xpBase = 1;
             }
             else if ( num == 1) {
-                enemy = Instantiate(Enemy2, new Vector3(pos_x, distance, -2), rot);
+                enemy = Instantiate(Enemies[1], new Vector3(pos_x, distance, -2), rot);
                 EnemyVars = enemy.GetComponent<EnemyScript>();
                 EnemyVars.life = 2;
                 EnemyVars.xpBase = 2;
             }
-            else {
-                enemy = Instantiate(Enemy3, new Vector3(pos_x, distance, -2), rot);
+            else if (num == 2) {
+                enemy = Instantiate(Enemies[2], new Vector3(pos_x, distance, -2), rot);
                 EnemyVars = enemy.GetComponent<EnemyScript>();
                 EnemyVars.life = 2;
                 EnemyVars.xpBase = 3;
             }
-            
+            else
+            {
+                enemy = Instantiate(Enemies[3], new Vector3(pos_x, distance, -2), rot);
+                EnemyVars = enemy.GetComponent<EnemyScript>();
+                var horizontalMovimentScript = enemy.GetComponent<HorizontalMovement>();
+                horizontalMovimentScript.amplitude = 1f;
+                horizontalMovimentScript.speed = 1f;
+                EnemyVars.life = 1;
+                EnemyVars.xpBase = 2;
+            }
+
             int playerdamage = Player.GetComponents<PlayerController>()[0].currentPlayerDamage;
             enemy.transform.localScale = (new Vector3(currentEnemySize, currentEnemySize, currentEnemySize));
             EnemyVars.worldManager = gameObject.GetComponent<WorldManager>();
@@ -223,8 +233,10 @@ public class WorldManager : MonoBehaviour
 
         if ( score >= nextLvl ) {
             Time.timeScale = 0f;
-            nextLvl *= 2f;
+            nextLvl += 50;
             XpBar.maxValue = nextLvl;
+
+            if (enemySpawnTime > 0.6f) enemySpawnTime -= 0.2f;
             GenerateChoiceItens();
         }
 
@@ -276,11 +288,12 @@ public class WorldManager : MonoBehaviour
 
         Player.transform.localScale = new Vector3(PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize, PlayerScript.currentPlayerSize);
         currentEnemySize = 1.5f;
+        enemySpawnTime = 2f;
         PlayerScript.canDamage = true;
         Text Text = UIHolder.GetComponentInChildren<UnityEngine.UI.Text>();
         Text.text = "0\n\n"+maxScore;
         score = 0;
-        nextLvl = 5f;
+        nextLvl = 50;
 
 
         XpBar.value = score;
@@ -365,21 +378,25 @@ public class WorldManager : MonoBehaviour
         IsPaused = true;
         BackgroundMusic.volume = 0.5f;
         ChoiceItens.Clear();
-        List <string> options = new List<string>();
+        options.Clear();
+        
         if(PlayerScript.currentInvulnerabilityTime < 10) options.Add("invulnerability time");
         if(PlayerScript.currentPlayerSize > 0.3f) options.Add("player size");
-        if (currentEnemySize < 3f) options.Add("enemy size");
+        if(currentEnemySize < 3f) options.Add("enemy size");
+        if(PlayerScript.currentShootCooldown > 0.15f) options.Add("reaload speed");
+        if(PlayerScript.currentBulletSize < 0.08f) options.Add("bullet size");
+        if(PlayerScript.currentBulletSpeed < 15) options.Add("bullet speed");
         
-        options.Add("bullet speed");
-        options.Add("reaload speed");
         options.Add("player speed");
-        options.Add("bullet size");
+        
+        if (options.Count < 3) return;
 
         for (int i = 0; i < 3; i++){
-            int num = Random.Range(i, options.Count);
+            int num = Random.Range(0, options.Count);
             ChoiceItens.Add(options[num]);
-            options.Remove(options[num]);
+            options.RemoveAt(num);
         }
+
 
         Option1.text = ChoiceItens[0];
         Option2.text = ChoiceItens[1];
